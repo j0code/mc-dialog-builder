@@ -1,0 +1,18 @@
+form, .compound-input {
+	display: flex;
+	flex-direction: column;
+}
+
+.compound-input label {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 5px;
+}
+
+.compound-input > .compound-input-generic-children,
+.compound-input > .compound-input-specific-children {
+	padding-inline: 15px;
+	display: flex;
+	flex-direction: column;
+}

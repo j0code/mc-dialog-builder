@@ -1,0 +1,20 @@
+{
+  "name": "mc-dialog-builder",
+  "version": "1.0.0",
+  "description": "MC Dialog building tool",
+  "homepage": "https://github.com/j0code/mc-dialog-builder#readme",
+  "bugs": {
+    "url": "https://github.com/j0code/mc-dialog-builder/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/j0code/mc-dialog-builder.git"
+  },
+  "license": "GPL-3.0-or-later",
+  "author": "j0code",
+  "type": "module",
+  "main": "dist/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

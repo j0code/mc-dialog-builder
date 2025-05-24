@@ -1,8 +1,10 @@
+import item from "./dialog_body_type/item.js"
 import plain_message from "./dialog_body_type/plain_message.js"
 import { NBTCompound, RegistryKey } from "./types.js"
 
 const dialog_body_type = new Map<string, NBTCompound>([
-	["minecraft:plain_message", plain_message]
+	["minecraft:plain_message", plain_message],
+	["minecraft:item", item]
 ])
 
 const dialog_type = new Map<string, NBTCompound>([

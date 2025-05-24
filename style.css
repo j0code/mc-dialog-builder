@@ -16,3 +16,50 @@ form, .compound-input {
 	display: flex;
 	flex-direction: column;
 }
+
+body {
+	display: flex;
+	flex-direction: row;
+	overflow: hidden;
+
+	> * {
+		width: 50vw;
+	}
+}
+
+#preview {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	overflow: auto;
+	background-color: aquamarine;
+}
+
+#preview-header {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	padding: 10px;
+}
+
+#preview-title {
+	font-size: 1.5em;
+	font-weight: bold;
+	text-align: center;
+	margin-bottom: 10px;
+}
+
+#preview-body {
+	flex: 1 1 auto;
+	overflow: auto;
+	padding: 10px;
+	background-color: tomato;
+}
+
+#preview-footer {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	padding: 10px;
+	background-color: yellow;
+}

@@ -11,7 +11,11 @@ import command_template from "./data/submit_method_type/command_template.js"
 import custom_form from "./data/submit_method_type/custom_form.js"
 import custom_template from "./data/submit_method_type/custom_template.js"
 import text from "./data/text_component_type/text.js"
+import input_control_text from "./data/input_control_type/text.js"
 import { NBTCompound, RegistryKey } from "./types.js"
+import boolean from "./data/input_control_type/boolean.js"
+import single_option from "./data/input_control_type/single_option.js"
+import number_range from "./data/input_control_type/number_range.js"
 
 const dialog_body_type = new Map<string, NBTCompound>([
 	["minecraft:plain_message", plain_message],
@@ -41,12 +45,20 @@ const submit_method_type = new Map<string, NBTCompound>([
 	["minecraft:custom_form",      custom_form],
 ])
 
+const input_control_type = new Map<string, NBTCompound>([
+	["minecraft:text",          input_control_text],
+	["minecraft:boolean",       boolean],
+	["minecraft:single_option", single_option],
+	["minecraft:number_range",  number_range],
+])
+
 const registries = {
 	dialog_type,
 	dialog_body_type,
 	text_component_type,
 	click_event_type,
-	submit_method_type
+	submit_method_type,
+	input_control_type
 } as const
 
 export default registries

@@ -6,12 +6,14 @@ import text_component from "./data/text_component.js"
 import { NBTBoolean, NBTCompound, NBTList, NBTNumber, NBTString, NBTTuple, NBTValue } from "./types.js"
 import { createElement } from "./util.js"
 import submit_action from "./data/submit_action.js"
+import input_control from "./data/input_control.js"
 
 const specialTypeMapping: Record<string, NBTValue> = {
 	text_component,
 	click_action,
 	click_event,
-	submit_action
+	submit_action,
+	input_control
 }
 
 export function createForm() {

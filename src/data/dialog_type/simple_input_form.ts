@@ -5,6 +5,12 @@ export default {
 	children: {
 		action: {
 			type: "submit_action"
+		},
+		inputs: {
+			type: "list",
+			elementType: {
+				type: "input_control"
+			}
 		}
 	}
 } satisfies NBTCompound

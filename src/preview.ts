@@ -72,8 +72,26 @@ function createBody(dialogData: any) {
 		element.appendChild(bodyElement)
 	}
 
-	if (dialogData.type == "minecraft:notice") {
-		
+	if (dialogData.type == "minecraft:multi_action") {
+		const actionGrid = createElement("div", { id: "action-grid" })
+		const columns = dialogData.columns || 2
+
+		actionGrid.style.gridTemplateColumns = `repeat(${dialogData.columns || 2}, 1fr)`
+
+		const actions: ButtonAction[] = dialogData.actions || []
+		let row = createElement("div", { className: "action-grid-row" })
+		for (const action of actions) {
+			if (row.children.length >= columns) {
+				actionGrid.appendChild(row)
+				row = createElement("div", { className: "action-grid-row" })
+			}
+			row.appendChild(renderButton(action))
+		}
+		if (row.children.length > 0) {
+			actionGrid.appendChild(row)
+		}
+
+		element.appendChild(actionGrid)
 	}
 
 	return element

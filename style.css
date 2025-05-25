@@ -1,3 +1,13 @@
+:root {
+	color-scheme: light dark;
+}
+
+#mc-dialog-builder {
+	background-color: light-dark(#e0e0e2, #404044);
+	color: light-dark(#141410, #e4e4e0);
+	scrollbar-gutter: stable;
+}
+
 form,
 .compound-input {
 	display: flex;
@@ -66,6 +76,7 @@ body {
 	overflow: auto;
 	background-color: aquamarine;
 	white-space: pre;
+	flex-wrap: wrap;
 }
 
 #preview-header {
@@ -108,4 +119,22 @@ body {
 		border-color: white;
 		outline: none;
 	}
+}
+
+#action-grid {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	justify-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+.action-grid-row {
+	display: flex;
+	flex-direction: row;
+	gap: 3px;
+	justify-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
 }

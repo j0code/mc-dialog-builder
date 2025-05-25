@@ -6,13 +6,13 @@ export default {
 		action: {
 			type: "compound",
 			children: {
-				label: { type: "string", placeholder: "Enter action label" },
-				tooltip: { type: "string", placeholder: "Enter action tooltip" },
-				width: { type: "number", default: 150, min: 1, max: 1024, step: 1 },
+				label: { type: "text_component" },
+				tooltip: { type: "text_component" },
+				width: { type: "number", default: 150, min: 1, max: 1024, step: 1 }/*,
 				on_click: {
 					type: "compound",
 					children: {}
-				}
+				}*/
 			}
 		}
 	}

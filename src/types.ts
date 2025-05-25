@@ -29,7 +29,8 @@ export type NBTSelect = {
 
 export type NBTString = {
 	type: "string",
-	placeholder?: string
+	default?: string,
+	placeholder?: string,
 }
 
 export type NBTNumber = {
@@ -67,3 +68,37 @@ export type TextTextComponent = BaseTextComponent & {
 }
 
 export type TextComponent = TextTextComponent
+
+export type ButtonAction = {
+	label: TextComponent[],
+	tooltip?: TextComponent[],
+	width: number,
+	on_click: ClickEvent
+}
+
+export type ClickEvent = {
+	action: "open_url",
+	url: string
+} | {
+	action: "open_file",
+	path: string
+} | {
+	action: "run_command",
+	command: string
+} | {
+	action: "suggest_command",
+	command: string
+} | {
+	action: "change_page",
+	page: number
+} | {
+	action: "copy_to_clipboard",
+	valze: string
+} | {
+	action: "show_dialog",
+	dialog: string
+} | {
+	action: "custom",
+	id: string,
+	payload: string
+}

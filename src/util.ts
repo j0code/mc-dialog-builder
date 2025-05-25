@@ -1,3 +1,5 @@
+import { TextComponent, TextTextComponent } from "./types.js"
+
 export function createElement<K extends keyof HTMLElementTagNameMap>(
 	tagName: K,
 	options: { id?: string, className?: string, value?: any, textContent?: string } = {}
@@ -44,4 +46,17 @@ export function readFormElements(elements: Element[], array: boolean = false): R
 		return Object.values(data)
 	}
 	return data
+}
+
+export function resolveTextComponent(component: TextComponent): TextTextComponent {
+	console.log("resolveTextComponent", component)
+	if (component.type == "text") {
+		return component
+	}
+	return { type: "text", text: "ERROR! Unknown TextComponent type!" }
+}
+
+export function resolveTextComponents(components: TextComponent | TextComponent[]): TextTextComponent[] {
+	if (!Array.isArray(components)) return [resolveTextComponent(components)]
+	return components.map(resolveTextComponent)
 }

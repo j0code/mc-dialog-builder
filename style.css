@@ -96,3 +96,15 @@ body {
 	padding: 10px;
 	background-color: yellow;
 }
+
+#preview button {
+	cursor: pointer;
+	background-color: #939393;
+	border: 2px solid black;
+	height: 30px;
+
+	&:hover, &:active, &:focus-visible {
+		border-color: white;
+		outline: none;
+	}
+}

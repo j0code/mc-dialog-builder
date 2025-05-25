@@ -1,5 +1,5 @@
-import { BaseTextComponent, NBTCompound, TextComponent } from "./types.js"
-import { createElement, readFormData } from "./util.js"
+import { BaseTextComponent, ButtonAction, TextComponent } from "./types.js"
+import { createElement, readFormData, resolveTextComponents } from "./util.js"
 
 export function previewDialog() {
 	const form = document.getElementById("dialog") as HTMLDetailsElement
@@ -35,18 +35,16 @@ function createBody(dialogData: any) {
 	bodyContent.textContent = "TODO"
 	element.appendChild(bodyContent)
 
+	for (const elem of dialogData.body || []) {
+		const bodyElement = createElement("p", { className: "preview-body-element" })
+
+		renderTextComponents(bodyElement, elem.contents || [])
+
+		element.appendChild(bodyElement)
+	}
+
 	if (dialogData.type == "minecraft:notice") {
-		for (const elem of dialogData.body || []) {
-			const bodyElement = createElement("p", { className: "preview-body-element" })
-			const firstComp: BaseTextComponent = elem.contents?.[0] ?? defaultTextComponent
-
-			// console.log("elem", elem)
-			for (const component of elem.contents || []) {
-				bodyElement.appendChild(renderTextComponent(component as TextComponent, firstComp))
-			}
-
-			element.appendChild(bodyElement)
-		}
+		
 	}
 
 	return element
@@ -54,6 +52,13 @@ function createBody(dialogData: any) {
 
 function createFooter(dialogData: any) {
 	const element = createElement("div", { id: "preview-footer" })
+
+	if (dialogData.type == "minecraft:notice") {
+		const action: ButtonAction = dialogData.action ?? { label: { type: "text", text: "Ok" }, width: 100 }
+		if (action.label.length == 0) action.label = [{ type: "text", text: "Ok" }]
+		const closeButton = renderButton(action)
+		element.appendChild(closeButton)
+	}
 
 	return element
 }
@@ -76,6 +81,35 @@ function renderTextComponent(component: TextComponent, parent: BaseTextComponent
 	element.style.textDecoration += strikethrough ? " line-through" : ""
 	element.style.textShadow = `1px 1px rgb(${shadowCss})`
 	return element
+}
+
+function renderButton(action: ButtonAction) {
+	const label = resolveTextComponents(action.label)
+	const button = createElement("button", { className: "dialog-button" })
+	button.style.width = `${action.width}px`
+	console.log("Rendering button:", action)
+
+	if (action.tooltip) {
+		button.title = resolveTextComponents(action.tooltip).map(comp => comp.text).join("")
+	}
+
+	renderTextComponents(button, label)
+
+	button.addEventListener("click", () => {
+		console.log("Button clicked:", action)
+	})
+
+	return button
+}
+
+function renderTextComponents(element: HTMLElement, components: TextComponent | TextComponent[]): void {
+	if (!Array.isArray(components)) {
+		components = [components]
+	}
+	const firstComp: BaseTextComponent = components[0] ?? defaultTextComponent
+	for (const component of components) {
+		element.appendChild(renderTextComponent(component as TextComponent, firstComp))
+	}
 }
 
 const defaultTextComponent: Required<BaseTextComponent> = {

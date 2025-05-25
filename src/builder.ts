@@ -1,8 +1,14 @@
+import click_action from "./click_action.js"
 import { previewDialog } from "./preview.js"
 import { getRegistry } from "./registries.js"
 import text_component from "./text_component.js"
 import { NBTBoolean, NBTCompound, NBTList, NBTNumber, NBTString, NBTTuple, NBTValue } from "./types.js"
 import { createElement } from "./util.js"
+
+const specialTypeMapping: Record<string, NBTValue> = {
+	text_component,
+	click_action,
+}
 
 export function createForm() {
 	const form = createElement("form", { id: "mc-dialog-builder" })
@@ -118,8 +124,8 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 	for (let [key, childDef] of Object.entries(children)) {
 		let inputElement: HTMLElement
 
-		if (childDef.type == "text_component") {
-			childDef = text_component
+		if (childDef.type in specialTypeMapping) {
+			childDef = specialTypeMapping[childDef.type]
 		}
 
 		if (childDef.type === "select") {
@@ -147,7 +153,6 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 		} else if (childDef.type == "tuple") {
 			inputElement = createTupleInput(`${parentId}-${key}`, key, childDef)
 		} else {
-			// @ts-expect-error
 			throw new Error(`Unsupported type: ${childDef.type}`)
 		}
 

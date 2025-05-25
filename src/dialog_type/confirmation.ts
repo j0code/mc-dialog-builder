@@ -3,7 +3,10 @@ import { NBTCompound } from "../types.js";
 export default {
 	type: "compound",
 	children: {
-		action: {
+		yes: {
+			type: "click_action"
+		},
+		no: {
 			type: "click_action"
 		}
 	}

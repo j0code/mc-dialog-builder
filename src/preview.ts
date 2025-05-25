@@ -1,6 +1,8 @@
 import { BaseTextComponent, ButtonAction, TextComponent } from "./types.js"
 import { createElement, readFormData, resolveTextComponents } from "./util.js"
 
+const DEFAULT_BUTTON_WIDTH = 150
+
 export function previewDialog() {
 	const form = document.getElementById("dialog") as HTMLDetailsElement
 	const preview = document.getElementById("preview") as HTMLDivElement
@@ -54,10 +56,23 @@ function createFooter(dialogData: any) {
 	const element = createElement("div", { id: "preview-footer" })
 
 	if (dialogData.type == "minecraft:notice") {
-		const action: ButtonAction = dialogData.action ?? { label: { type: "text", text: "Ok" }, width: 100 }
+		const action: ButtonAction = dialogData.action ?? { label: { type: "text", text: "Ok" }, width: DEFAULT_BUTTON_WIDTH }
 		if (action.label.length == 0) action.label = [{ type: "text", text: "Ok" }]
+
 		const closeButton = renderButton(action)
+
 		element.appendChild(closeButton)
+	} else if (dialogData.type == "minecraft:confirmation") {
+		const yesAction: ButtonAction = dialogData.yes ?? { label: { type: "text", text: "Yes" }, width: DEFAULT_BUTTON_WIDTH }
+		const noAction:  ButtonAction = dialogData.no  ?? { label: { type: "text", text: "No"  }, width: DEFAULT_BUTTON_WIDTH }
+		if (yesAction.label.length == 0) yesAction.label = [{ type: "text", text: "Yes" }]
+		if (noAction.label.length == 0)  noAction.label  = [{ type: "text", text: "No" }]
+
+		const yesButton = renderButton(yesAction)
+		const noButton  = renderButton(noAction)
+
+		element.appendChild(yesButton)
+		element.appendChild(noButton)
 	}
 
 	return element

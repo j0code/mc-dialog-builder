@@ -1,5 +1,6 @@
 import item from "./dialog_body_type/item.js"
 import plain_message from "./dialog_body_type/plain_message.js"
+import confirmation from "./dialog_type/confirmation.js"
 import notice from "./dialog_type/notice.js"
 import text from "./text_component_type/text.js"
 import { NBTCompound, RegistryKey } from "./types.js"
@@ -10,7 +11,8 @@ const dialog_body_type = new Map<string, NBTCompound>([
 ])
 
 const dialog_type = new Map<string, NBTCompound>([
-	["minecraft:notice", notice]
+	["minecraft:notice", notice],
+	["minecraft:confirmation", confirmation]
 ])
 
 const text_component_type = new Map<string, NBTCompound>([

@@ -95,6 +95,7 @@ body {
 	justify-content: center;
 	padding: 10px;
 	background-color: yellow;
+	gap: 10px;
 }
 
 #preview button {

@@ -8,7 +8,7 @@ export function previewDialog() {
 
 	console.log("Dialog Data:", dialogData)
 	
-	const header = createHeader(dialogData.title)
+	const header = createHeader(dialogData.title || " ")
 	const body = createBody(dialogData)
 	const footer = createFooter(dialogData)
 	

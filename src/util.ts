@@ -9,25 +9,38 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
 }
 
 export function readFormData(form: HTMLDetailsElement): Record<string, any> {
-	const data: Record<string, any> = {}
 	const elements = Array.from(form.children[1].children).concat(Array.from(form.children[2].children))
+
+	return readFormElements(elements)
+}
+
+export function readFormElements(elements: Element[], array: boolean = false): Record<string, any> {
+	const data: Record<string, any> = {}
 
 	for (const element of elements) {
 		if (element instanceof HTMLLabelElement) {
-			const input = element.children[0] as HTMLInputElement | HTMLSelectElement
+			const input = element.children[0] as HTMLInputElement | HTMLSelectElement | HTMLDivElement
 			if (!input) continue
 
-			if (input.type === "checkbox") {
+			if (input instanceof HTMLDivElement) { // list
+				data[input.dataset.key!] = readFormElements(Array.from(input.children), true)
+				continue
+			}
+
+			if (input.type === "checkbox") { // boolean
 				data[input.dataset.key!] = input.checked
-			} else if (input.type === "number") {
+			} else if (input.type === "number") { // number
 				data[input.dataset.key!] = Number(input.value)
-			} else {
+			} else { // string or select
 				data[input.dataset.key!] = input.value
 			}
-		} else if (element instanceof HTMLDetailsElement) {
+		} else if (element instanceof HTMLDetailsElement) { // compound
 			data[element.dataset.key!] = readFormData(element)
 		}
 	}
 
+	if (array) {
+		return Object.values(data)
+	}
 	return data
 }

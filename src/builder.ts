@@ -1,6 +1,6 @@
 import { previewDialog } from "./preview.js"
 import { getRegistry } from "./registries.js"
-import { NBTBoolean, NBTCompound, NBTNumber, NBTString, NBTValue } from "./types.js"
+import { NBTBoolean, NBTCompound, NBTList, NBTNumber, NBTString, NBTValue } from "./types.js"
 import { createElement } from "./util.js"
 
 export function createForm() {
@@ -13,8 +13,11 @@ export function createForm() {
 			title: { type: "string", placeholder: "Enter dialog title" },
 			external_title: { type: "string", placeholder: "Enter external title" },
 			body: {
-				type: "compound", children: {
-					type: { type: "select", registry: "minecraft:dialog_body_type" }
+				type: "list",
+				elementType: {
+					type: "compound", children: {
+						type: { type: "select", registry: "minecraft:dialog_body_type" }
+					}
 				}
 			},
 			can_close_with_escape: { type: "boolean", default: true }
@@ -87,12 +90,12 @@ function createCompoundInput(id: string, name: string, def: NBTCompound) {
 
 	summaryElement.textContent = name
 	element.open = true // Open by default
-	setCompoundChildren(id, def, genericChildren, def.children)
+	setCompoundChildren(id, def, genericChildren, def.children, specificChildren)
 
 	if ("type" in def.children && def.children.type.type == "select") {
 		const registry = getRegistry(def.children.type.registry)
 		const firstEntry = registry.values().next().value
-		if (firstEntry) setCompoundChildren(id, def, specificChildren, firstEntry.children)
+		if (firstEntry) setCompoundChildren(id, def, specificChildren, firstEntry.children, specificChildren)
 		console.log(id, firstEntry)
 	}
 
@@ -102,7 +105,7 @@ function createCompoundInput(id: string, name: string, def: NBTCompound) {
 	return element
 }
 
-function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: HTMLDivElement, children: Record<string, NBTValue>) {
+function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: HTMLDivElement, children: Record<string, NBTValue>, specificChildrenElement: HTMLDivElement) {
 	for (let [key, childDef] of Object.entries(children)) {
 		let inputElement: HTMLElement
 
@@ -115,10 +118,11 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 			if (key == "type") {
 				inputElement.addEventListener("change", (event) => {
 					const selectElement = event.target as HTMLSelectElement
-					console.log(selectElement.value) // Handle the selected value
 					const registry = getRegistry(childDef.registry)
 					const entry = registry.get(selectElement.value)
-					setCompoundChildren(parentId, parentDef, element, entry?.children ?? {})
+
+					specificChildrenElement.innerHTML = "" // Clear previous specific children
+					setCompoundChildren(parentId, parentDef, specificChildrenElement, entry?.children ?? {}, specificChildrenElement)
 				})
 			}
 		} else if (childDef.type === "string") {
@@ -129,6 +133,8 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 			inputElement = createBooleanInput(`${parentId}-${key}`, childDef)
 		} else if (childDef.type == "compound") {
 			inputElement = createCompoundInput(`${parentId}-${key}`, key, childDef)
+		} else if (childDef.type == "list") {
+			inputElement = createListInput(`${parentId}-${key}`, childDef)
 		} else {
 			// @ts-expect-error
 			throw new Error(`Unsupported type: ${childDef.type}`)
@@ -146,4 +152,46 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 		label.appendChild(inputElement)
 		element.appendChild(label)
 	}
+}
+
+function createListInput(id: string, def: NBTList) {
+	const element = createElement("div", { id, className: "list-input" })
+	const addButton = createElement("button", { className: "add-button" })
+	addButton.textContent = "Add Item"
+	addButton.type = "button"
+
+	addButton.addEventListener("click", () => {
+		const itemElement = createListItemInput(id, element.childElementCount - 1, def.elementType)
+		element.appendChild(itemElement)
+	})
+
+	element.appendChild(addButton)
+	return element
+}
+
+function createListItemInput(parentId: string, index: number, elementType: NBTList["elementType"]) {
+	let inputElement: HTMLElement
+
+	if (elementType.type === "string") {
+		inputElement = createStringInput(`${parentId}-${index}`, elementType)
+	} else if (elementType.type === "number") {
+		inputElement = createNumberInput(`${parentId}-${index}`, elementType)
+	} else if (elementType.type === "boolean") {
+		inputElement = createBooleanInput(`${parentId}-${index}`, elementType)
+	} else if (elementType.type === "compound") {
+		inputElement = createCompoundInput(`${parentId}-${index}`, index+"", elementType)
+	} else {
+		throw new Error(`Unsupported list item type: ${elementType.type}`)
+	}
+
+	inputElement.dataset.key = index+""
+
+	if (elementType.type === "compound") {
+		return inputElement
+	}
+
+	const label = createElement("label", {})
+	label.textContent = index+""
+	label.appendChild(inputElement)
+	return label
 }

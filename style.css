@@ -3,21 +3,43 @@ form, .compound-input {
 	flex-direction: column;
 }
 
+form {
+	padding: 25px;
+	font-family: monospace;
+	font-size: 16px;
+}
+
 .compound-input label {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 	gap: 5px;
+
+	&:has(.list-input) {
+		flex-direction: column;
+		align-items: flex-start;
+	}
 }
 
 .compound-input > .compound-input-generic-children,
 .compound-input > .compound-input-specific-children {
-	padding-inline: 15px;
+	padding-inline: calc(2em * 0.6); /* indent by 2, 0.6 to convert height to */
 	display: flex;
 	flex-direction: column;
 }
 
+summary {
+	margin-left: calc(-1em * 0.66 - 1em * 0.4); /* marker width + marker margin right */
+}
+
+@-moz-document url-prefix() {
+	summary {
+		margin-left: calc(-1em * 0.88); /* marker width */
+	}
+}
+
 body {
+	margin: 0px;
 	display: flex;
 	flex-direction: row;
 	overflow: hidden;
@@ -27,12 +49,17 @@ body {
 	}
 }
 
+* {
+	box-sizing: border-box;
+}
+
 #preview {
 	display: flex;
 	flex-direction: column;
 	flex: 1;
 	overflow: auto;
 	background-color: aquamarine;
+	white-space: pre;
 }
 
 #preview-header {

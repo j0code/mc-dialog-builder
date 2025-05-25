@@ -49,7 +49,7 @@ export function readFormElements(elements: Element[], array: boolean = false): R
 }
 
 export function resolveTextComponent(component: TextComponent): TextTextComponent {
-	console.log("resolveTextComponent", component)
+	// console.log("resolveTextComponent", component)
 	if (component.type == "text") {
 		return component
 	}
@@ -59,4 +59,8 @@ export function resolveTextComponent(component: TextComponent): TextTextComponen
 export function resolveTextComponents(components: TextComponent | TextComponent[]): TextTextComponent[] {
 	if (!Array.isArray(components)) return [resolveTextComponent(components)]
 	return components.map(resolveTextComponent)
+}
+
+export function stringifyTextComponents(components: TextComponent | TextComponent[]): string {
+	return resolveTextComponents(components).map(comp => comp.text).join("")
 }

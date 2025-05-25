@@ -1,5 +1,5 @@
-import { BaseTextComponent, ButtonAction, TextComponent } from "./types.js"
-import { createElement, readFormData, resolveTextComponents } from "./util.js"
+import { BaseTextComponent, ButtonAction, SubmitAction, TextComponent } from "./types.js"
+import { createElement, readFormData, resolveTextComponents, stringifyTextComponents } from "./util.js"
 
 const DEFAULT_BUTTON_WIDTH = 150
 
@@ -22,6 +22,11 @@ const cancelButton: Omit<ButtonAction, "on_click"> = {
 
 const backButton: Omit<ButtonAction, "on_click"> = {
 	label: [{ type: "text", text: "Back" }],
+	width: DEFAULT_BUTTON_WIDTH
+}
+
+const submitButton: Omit<SubmitAction, "on_submit"> = {
+	label: [{ type: "text", text: "Submit" }],
 	width: DEFAULT_BUTTON_WIDTH
 }
 
@@ -102,6 +107,12 @@ function createFooter(dialogData: any) {
 		const closeButton = renderButton(action)
 
 		element.appendChild(closeButton)
+	} else if (["minecraft:simple_input_form"].includes(dialogData.type)) {
+		const action: SubmitAction = { ...submitButton, on_submit: dialogData.action.on_submit }
+
+		const closeButton = renderButton(action)
+
+		element.appendChild(closeButton)
 	}
 
 	return element
@@ -127,23 +138,26 @@ function renderTextComponent(component: TextComponent, parent: BaseTextComponent
 	return element
 }
 
-function renderButton(action: ButtonAction) {
+function renderButton(action: ButtonAction | SubmitAction): HTMLButtonElement {
 	const label = resolveTextComponents(action.label)
 	const button = createElement("button", { className: "dialog-button" })
 	button.style.width = `${action.width}px`
 	console.log("Rendering button:", action)
 
 	if (action.tooltip) {
-		button.title = resolveTextComponents(action.tooltip).map(comp => comp.text).join("")
+		button.title = stringifyTextComponents(action.tooltip)
 	}
 
 	renderTextComponents(button, label)
 
 	button.addEventListener("click", () => {
-		console.log("Button clicked:", action.on_click)
-		if (!action.on_click) return
-		if (action.on_click.action == "run_command") {
-			console.log("Running command:", action.on_click.command)
+		// @ts-expect-error
+		console.log(`Button [${stringifyTextComponents(label)}] clicked:`, action.on_click ?? action.on_submit)
+
+		if ("on_submit" in action) {
+			handleSubmit(action)
+		} else if ("on_click" in action) {
+			handleClick(action)
 		}
 	})
 
@@ -157,5 +171,24 @@ function renderTextComponents(element: HTMLElement, components: TextComponent | 
 	const firstComp: BaseTextComponent = components[0] ?? defaultTextComponent
 	for (const component of components) {
 		element.appendChild(renderTextComponent(component as TextComponent, firstComp))
+	}
+}
+
+function handleClick(action: ButtonAction) {
+	if (action.on_click.action == "run_command") {
+		console.log(`submit ${action.on_click.action}:`, action.on_click.command)
+	}
+}
+
+function handleSubmit(action: SubmitAction) {
+	if (action.on_submit.action == "minecraft:command_template") {
+		console.log(`submit ${action.on_submit.action}:`, action.on_submit.template)
+	} else if (action.on_submit.action == "minecraft:custom_template") {
+		console.log(`submit ${action.on_submit.action}:`, `(${action.on_submit.id})`, action.on_submit.template)
+	} else if (action.on_submit.action == "minecraft:custom_form") {
+		console.log(`submit ${action.on_submit.action}:`, `${action.on_submit.id}`)
+	} else {
+		// @ts-expect-error
+		console.log(`submit ${action.on_submit.action}:`, action.on_submit)
 	}
 }

@@ -5,11 +5,13 @@ import { getRegistry } from "./registries.js"
 import text_component from "./data/text_component.js"
 import { NBTBoolean, NBTCompound, NBTList, NBTNumber, NBTString, NBTTuple, NBTValue } from "./types.js"
 import { createElement } from "./util.js"
+import submit_action from "./data/submit_action.js"
 
 const specialTypeMapping: Record<string, NBTValue> = {
 	text_component,
 	click_action,
-	click_event
+	click_event,
+	submit_action
 }
 
 export function createForm() {

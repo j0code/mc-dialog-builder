@@ -3,8 +3,7 @@ import { NBTCompound } from "../../types.js";
 export default {
 	type: "compound",
 	children: {
-		action: {
-			type: "submit_action"
-		}
+		template: { type: "string" },
+		id: { type: "string" },
 	}
 } satisfies NBTCompound

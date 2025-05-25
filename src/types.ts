@@ -2,7 +2,10 @@ import registries from "./registries.js"
 
 export type RegistryKey = keyof typeof registries | `minecraft:${keyof typeof registries}`
 
-export type NBTValue = NBTCompound | NBTList | NBTTuple | NBTSelect | NBTString | NBTNumber | NBTBoolean | NBTTextComponent | NBTClickAction | NBTClickEvent
+export type NBTValue =
+	| NBTCompound | NBTList | NBTTuple | NBTSelect | NBTString
+	| NBTNumber | NBTBoolean | NBTTextComponent | NBTClickAction
+	| NBTClickEvent | NBTSubmitAction
 
 export type NBTCompound = {
 	type: "compound"
@@ -113,4 +116,23 @@ export type ClickEvent = {
 	action: "custom",
 	id: string,
 	payload: string
+}
+
+export type SubmitAction = {
+	label: TextComponent[],
+	tooltip?: TextComponent[],
+	width: number,
+	on_submit: SubmitEvent
+}
+
+export type SubmitEvent = {
+	action: "minecraft:command_template",
+	template: string
+} | {
+	action: "minecraft:custom_template",
+	template: string,
+	id: string
+} | {
+	action: "minecraft:custom_form",
+	id: string
 }

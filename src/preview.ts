@@ -1,4 +1,4 @@
-import { NBTCompound, TextComponent } from "./types.js"
+import { BaseTextComponent, NBTCompound, TextComponent } from "./types.js"
 import { createElement, readFormData } from "./util.js"
 
 export function previewDialog() {
@@ -38,10 +38,11 @@ function createBody(dialogData: any) {
 	if (dialogData.type == "minecraft:notice") {
 		for (const elem of dialogData.body || []) {
 			const bodyElement = createElement("p", { className: "preview-body-element" })
+			const firstComp: BaseTextComponent = elem.contents?.[0] ?? defaultTextComponent
 
 			console.log("elem", elem)
 			for (const component of elem.contents || []) {
-				bodyElement.appendChild(renderTextComponent(component as TextComponent))
+				bodyElement.appendChild(renderTextComponent(component as TextComponent, firstComp))
 			}
 
 			element.appendChild(bodyElement)
@@ -57,14 +58,30 @@ function createFooter(dialogData: any) {
 	return element
 }
 
-function renderTextComponent(component: TextComponent) {
+function renderTextComponent(component: TextComponent, parent: BaseTextComponent): HTMLSpanElement {
 	const element = createElement("span", { className: "text-component" })
+	const shadow = component.shadow_color || [0, 0, 0, 1] // default shadow color if not provided   (TODO: use darkened color)
+	const shadowCss = `${shadow[0] * 255} ${shadow[1] * 255} ${shadow[2] * 255} / ${shadow[3] * 100}%`
+
+	console.log("Rendering component:", component, "with parent:", parent)
 	element.textContent = component.text || ""
-	element.style.color = component.color || "white"
+	element.style.color = component.color || parent.color || defaultTextComponent.color
 	element.style.fontWeight = component.bold ? "bold" : "normal"
 	element.style.fontStyle = component.italic ? "italic" : "normal"
 	element.style.textDecoration = component.underlined ? "underline" : "none"
 	element.style.textDecoration += component.strikethrough ? " line-through" : ""
-	element.style.textShadow = component.shadow_color ? `1px 1px ${component.shadow_color}` : "none"
+	element.style.textShadow = component.shadow_color ? `1px 1px rgb(${shadowCss})` : "none"
 	return element
+}
+
+const defaultTextComponent: Required<BaseTextComponent> = {
+	type: "text",
+	color: "white",
+	font: "minecraft:default",
+	bold: false,
+	italic: false,
+	underlined: false,
+	strikethrough: false,
+	obfuscated: false,
+	shadow_color: [0.75, 0.75, 0.75, 0.25]
 }

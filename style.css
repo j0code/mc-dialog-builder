@@ -8,25 +8,20 @@ form {
 	padding: 25px;
 	font-family: monospace;
 	font-size: 16px;
+	overflow: clip scroll;
+	height: 100vh;
 }
 
-.compound-input label
-.list-input label,
-.tuple-input label {
+label {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 	gap: 5px;
-
-	&:has(.list-input) {
-		flex-direction: column;
-		align-items: flex-start;
-	}
 }
 
 .compound-input > .compound-input-generic-children,
 .compound-input > .compound-input-specific-children,
-.list-input > :not(summary),
+.list-input > :not(summary, button),
 .tuple-input > :not(summary) {
 	padding-inline: calc(2em * 0.6); /* indent by 2, 0.6 to convert height to */
 }

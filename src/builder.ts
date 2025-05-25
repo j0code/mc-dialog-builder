@@ -1,5 +1,6 @@
 import { previewDialog } from "./preview.js"
 import { getRegistry } from "./registries.js"
+import text_component from "./text_component.js"
 import { NBTBoolean, NBTCompound, NBTList, NBTNumber, NBTString, NBTValue } from "./types.js"
 import { createElement } from "./util.js"
 
@@ -110,7 +111,7 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 		let inputElement: HTMLElement
 
 		if (childDef.type == "text_component") {
-			childDef = { type: "compound", children: {} } // Placeholder for text component, should be filled with actual data
+			childDef = text_component
 		}
 
 		if (childDef.type === "select") {

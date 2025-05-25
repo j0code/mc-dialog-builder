@@ -42,3 +42,10 @@ export type NBTBoolean = {
 export type NBTTextComponent = {
 	type: "text_component"
 }
+
+export type TextTextComponent = {
+	type: "text",
+	text: string,
+}
+
+export type TextComponent = TextTextComponent

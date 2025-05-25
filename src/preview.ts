@@ -1,3 +1,4 @@
+import { NBTCompound, TextComponent } from "./types.js"
 import { createElement, readFormData } from "./util.js"
 
 export function previewDialog() {
@@ -34,6 +35,18 @@ function createBody(dialogData: any) {
 	bodyContent.textContent = "TODO"
 	element.appendChild(bodyContent)
 
+	if (dialogData.type == "minecraft:notice") {
+		for (const elem of dialogData.body || []) {
+			const bodyElement = createElement("p", { className: "preview-body-element" })
+
+			console.log("elem", elem)
+			for (const component of elem.contents || []) {
+				bodyElement.appendChild(renderTextComponent(component as TextComponent))
+			}
+
+			element.appendChild(bodyElement)
+		}
+	}
 
 	return element
 }
@@ -41,5 +54,11 @@ function createBody(dialogData: any) {
 function createFooter(dialogData: any) {
 	const element = createElement("div", { id: "preview-footer" })
 
+	return element
+}
+
+function renderTextComponent(component: TextComponent) {
+	const element = createElement("span", { className: "text-component" })
+	element.textContent = component.text || "No text provided"
 	return element
 }

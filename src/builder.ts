@@ -1,8 +1,8 @@
-import click_action from "./click_action.js"
-import click_event from "./click_event.js"
+import click_action from "./data/click_action.js"
+import click_event from "./data/click_event.js"
 import { previewDialog } from "./preview.js"
 import { getRegistry } from "./registries.js"
-import text_component from "./text_component.js"
+import text_component from "./data/text_component.js"
 import { NBTBoolean, NBTCompound, NBTList, NBTNumber, NBTString, NBTTuple, NBTValue } from "./types.js"
 import { createElement } from "./util.js"
 

@@ -1,10 +1,13 @@
-import run_command from "./click_event_type/run_command.js"
-import item from "./dialog_body_type/item.js"
-import plain_message from "./dialog_body_type/plain_message.js"
-import confirmation from "./dialog_type/confirmation.js"
-import multi_action from "./dialog_type/multi_action.js"
-import notice from "./dialog_type/notice.js"
-import text from "./text_component_type/text.js"
+import run_command from "./data/click_event_type/run_command.js"
+import item from "./data/dialog_body_type/item.js"
+import plain_message from "./data/dialog_body_type/plain_message.js"
+import confirmation from "./data/dialog_type/confirmation.js"
+import dialog_list from "./data/dialog_type/dialog_list.js"
+import multi_action from "./data/dialog_type/multi_action.js"
+import notice from "./data/dialog_type/notice.js"
+import server_links from "./data/dialog_type/server_links.js"
+import simple_input_form from "./data/dialog_type/simple_input_form.js"
+import text from "./data/text_component_type/text.js"
 import { NBTCompound, RegistryKey } from "./types.js"
 
 const dialog_body_type = new Map<string, NBTCompound>([
@@ -15,7 +18,10 @@ const dialog_body_type = new Map<string, NBTCompound>([
 const dialog_type = new Map<string, NBTCompound>([
 	["minecraft:notice", notice],
 	["minecraft:confirmation", confirmation],
-	["minecraft:multi_action", multi_action]
+	["minecraft:multi_action", multi_action],
+	["minecraft:server_links", server_links],
+	["minecraft:dialog_list",  dialog_list],
+	["minecraft:simple_input_form", simple_input_form]
 ])
 
 const text_component_type = new Map<string, NBTCompound>([

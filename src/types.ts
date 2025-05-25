@@ -58,6 +58,10 @@ export type NBTClickEvent = {
 	type: "click_event"
 }
 
+export type NBTSubmitAction = {
+	type: "submit_action"
+}
+
 export type BaseTextComponent = {
 	type: string,
 	color?: string,

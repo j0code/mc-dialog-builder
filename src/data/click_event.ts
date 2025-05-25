@@ -3,6 +3,9 @@ import { NBTCompound } from "../types.js";
 export default {
 	type: "compound",
 	children: {
-		command: { type: "string" },
-	}
+		action: {
+			type: "select",
+			registry: "click_event_type"
+		}
+	},
 } satisfies NBTCompound

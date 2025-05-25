@@ -95,7 +95,7 @@ function createFooter(dialogData: any) {
 
 		element.appendChild(yesButton)
 		element.appendChild(noButton)
-	} else if (dialogData.type == "minecraft:multi_action") {
+	} else if (["minecraft:multi_action", "minecraft:server_links", "minecraft:dialog_list"].includes(dialogData.type)) {
 		const hasExitAction = Boolean(dialogData.on_cancel)
 		const action: ButtonAction = { ...(hasExitAction ? cancelButton : backButton), on_click: dialogData.on_cancel }
 

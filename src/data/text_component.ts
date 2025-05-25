@@ -1,4 +1,4 @@
-import { NBTList } from "./types.js";
+import { NBTList } from "../types.js";
 
 export default {
 	type: "list",

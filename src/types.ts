@@ -2,7 +2,7 @@ import registries from "./registries.js"
 
 export type RegistryKey = keyof typeof registries | `minecraft:${keyof typeof registries}`
 
-export type NBTValue = NBTCompound | NBTList | NBTTuple | NBTSelect | NBTString | NBTNumber | NBTBoolean | NBTTextComponent | NBTClickAction
+export type NBTValue = NBTCompound | NBTList | NBTTuple | NBTSelect | NBTString | NBTNumber | NBTBoolean | NBTTextComponent | NBTClickAction | NBTClickEvent
 
 export type NBTCompound = {
 	type: "compound"
@@ -13,12 +13,12 @@ export type NBTCompound = {
 
 export type NBTList = {
 	type: "list",
-	elementType: Exclude<NBTValue, NBTList>
+	elementType: NBTValue
 }
 
 export type NBTTuple = {
 	type: "tuple",
-	elementType: Exclude<NBTValue, NBTList>,
+	elementType: NBTValue,
 	labels: string[]
 }
 
@@ -49,8 +49,13 @@ export type NBTBoolean = {
 export type NBTTextComponent = {
 	type: "text_component"
 }
+
 export type NBTClickAction = {
 	type: "click_action"
+}
+
+export type NBTClickEvent = {
+	type: "click_event"
 }
 
 export type BaseTextComponent = {

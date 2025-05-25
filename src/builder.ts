@@ -1,4 +1,5 @@
 import click_action from "./click_action.js"
+import click_event from "./click_event.js"
 import { previewDialog } from "./preview.js"
 import { getRegistry } from "./registries.js"
 import text_component from "./text_component.js"
@@ -8,6 +9,7 @@ import { createElement } from "./util.js"
 const specialTypeMapping: Record<string, NBTValue> = {
 	text_component,
 	click_action,
+	click_event
 }
 
 export function createForm() {
@@ -112,6 +114,11 @@ function createCompoundInput(id: string, name: string, def: NBTCompound) {
 		const firstEntry = registry.values().next().value
 		if (firstEntry) setCompoundChildren(id, def, specificChildren, firstEntry.children, specificChildren)
 		console.log(id, firstEntry)
+	} else if ("action" in def.children && def.children.action.type == "select") {
+		const registry = getRegistry(def.children.action.registry)
+		const firstEntry = registry.values().next().value
+		if (firstEntry) setCompoundChildren(id, def, specificChildren, firstEntry.children, specificChildren)
+		console.log(id, firstEntry)
 	}
 
 	element.appendChild(summaryElement)
@@ -124,13 +131,13 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 	for (let [key, childDef] of Object.entries(children)) {
 		let inputElement: HTMLElement
 
-		if (childDef.type in specialTypeMapping) {
+		if (childDef.type in specialTypeMapping) { //  && childDef.type != "text_component"
 			childDef = specialTypeMapping[childDef.type]
 		}
 
 		if (childDef.type === "select") {
 			inputElement = createSelect(`${parentId}-${key}`, getRegistry(childDef.registry).keys().toArray().map(value => ({ value }))) // Placeholder for options, should be filled with actual data
-			if (key == "type") {
+			if (key == "type" || key == "action") {
 				inputElement.addEventListener("change", (event) => {
 					const selectElement = event.target as HTMLSelectElement
 					const registry = getRegistry(childDef.registry)
@@ -192,6 +199,10 @@ function createListInput(id: string, name: string, def: NBTList) {
 
 function createListItemInput(parentId: string, index: number, elementType: NBTList["elementType"], labelText: string = index+"") {
 	let inputElement: HTMLElement
+
+	if (elementType.type in specialTypeMapping) {
+		elementType = specialTypeMapping[elementType.type]
+	}
 
 	if (elementType.type === "string") {
 		inputElement = createStringInput(`${parentId}-${index}`, elementType)

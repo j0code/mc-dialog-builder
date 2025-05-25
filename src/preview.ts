@@ -3,6 +3,28 @@ import { createElement, readFormData, resolveTextComponents } from "./util.js"
 
 const DEFAULT_BUTTON_WIDTH = 150
 
+const defaultTextComponent: Required<BaseTextComponent> = {
+	type: "text",
+	color: "white",
+	font: "minecraft:default",
+	bold: false,
+	italic: false,
+	underlined: false,
+	strikethrough: false,
+	obfuscated: false,
+	shadow_color: [0.75, 0.75, 0.75, 0.25]
+}
+
+const cancelButton: Omit<ButtonAction, "on_click"> = {
+	label: [{ type: "text", text: "Cancel" }],
+	width: DEFAULT_BUTTON_WIDTH
+}
+
+const backButton: Omit<ButtonAction, "on_click"> = {
+	label: [{ type: "text", text: "Back" }],
+	width: DEFAULT_BUTTON_WIDTH
+}
+
 export function previewDialog() {
 	const form = document.getElementById("dialog") as HTMLDetailsElement
 	const preview = document.getElementById("preview") as HTMLDivElement
@@ -73,6 +95,13 @@ function createFooter(dialogData: any) {
 
 		element.appendChild(yesButton)
 		element.appendChild(noButton)
+	} else if (dialogData.type == "minecraft:multi_action") {
+		const hasExitAction = Boolean(dialogData.on_cancel)
+		const action: ButtonAction = { ...(hasExitAction ? cancelButton : backButton), on_click: dialogData.on_cancel }
+
+		const closeButton = renderButton(action)
+
+		element.appendChild(closeButton)
 	}
 
 	return element
@@ -111,7 +140,11 @@ function renderButton(action: ButtonAction) {
 	renderTextComponents(button, label)
 
 	button.addEventListener("click", () => {
-		console.log("Button clicked:", action)
+		console.log("Button clicked:", action.on_click)
+		if (!action.on_click) return
+		if (action.on_click.action == "run_command") {
+			console.log("Running command:", action.on_click.command)
+		}
 	})
 
 	return button
@@ -125,16 +158,4 @@ function renderTextComponents(element: HTMLElement, components: TextComponent | 
 	for (const component of components) {
 		element.appendChild(renderTextComponent(component as TextComponent, firstComp))
 	}
-}
-
-const defaultTextComponent: Required<BaseTextComponent> = {
-	type: "text",
-	color: "white",
-	font: "minecraft:default",
-	bold: false,
-	italic: false,
-	underlined: false,
-	strikethrough: false,
-	obfuscated: false,
-	shadow_color: [0.75, 0.75, 0.75, 0.25]
 }

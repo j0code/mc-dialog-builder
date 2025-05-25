@@ -1,7 +1,7 @@
 import { previewDialog } from "./preview.js"
 import { getRegistry } from "./registries.js"
 import text_component from "./text_component.js"
-import { NBTBoolean, NBTCompound, NBTList, NBTNumber, NBTString, NBTValue } from "./types.js"
+import { NBTBoolean, NBTCompound, NBTList, NBTNumber, NBTString, NBTTuple, NBTValue } from "./types.js"
 import { createElement } from "./util.js"
 
 export function createForm() {
@@ -63,9 +63,9 @@ function createNumberInput(id: string, def: NBTNumber) {
 	const element = createElement("input", { id, className: "text-input" })
 
 	element.type = "number"
-	if (def.min)  element.min  = String(def.min)
-	if (def.max)  element.max  = String(def.max)
-	if (def.step) element.step = String(def.step)
+	if (def.min  != undefined) element.min  = String(def.min)
+	if (def.max  != undefined) element.max  = String(def.max)
+	if (def.step != undefined) element.step = String(def.step)
 	element.value = String(def.default || def.min || 0)
 
 	return element
@@ -135,7 +135,9 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 		} else if (childDef.type == "compound") {
 			inputElement = createCompoundInput(`${parentId}-${key}`, key, childDef)
 		} else if (childDef.type == "list") {
-			inputElement = createListInput(`${parentId}-${key}`, childDef)
+			inputElement = createListInput(`${parentId}-${key}`, key, childDef)
+		} else if (childDef.type == "tuple") {
+			inputElement = createTupleInput(`${parentId}-${key}`, key, childDef)
 		} else {
 			// @ts-expect-error
 			throw new Error(`Unsupported type: ${childDef.type}`)
@@ -143,7 +145,7 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 
 		inputElement.dataset.key = key
 		
-		if (childDef.type === "compound") {
+		if (["compound", "list", "tuple"].includes(childDef.type)) {
 			element.appendChild(inputElement)
 			continue
 		}
@@ -155,22 +157,26 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 	}
 }
 
-function createListInput(id: string, def: NBTList) {
-	const element = createElement("div", { id, className: "list-input" })
+function createListInput(id: string, name: string, def: NBTList) {
+	const element = createElement("details", { id, className: "list-input" })
+	const summaryElement = createElement("summary", { className: "list-input-name" })
 	const addButton = createElement("button", { className: "add-button" })
 	addButton.textContent = "Add Item"
 	addButton.type = "button"
+	summaryElement.textContent = name
+	element.open = true // Open by default
 
 	addButton.addEventListener("click", () => {
-		const itemElement = createListItemInput(id, element.childElementCount - 1, def.elementType)
+		const itemElement = createListItemInput(id, element.childElementCount - 2, def.elementType) // -2 to skip the summary and add button
 		element.appendChild(itemElement)
 	})
 
+	element.appendChild(summaryElement)
 	element.appendChild(addButton)
 	return element
 }
 
-function createListItemInput(parentId: string, index: number, elementType: NBTList["elementType"]) {
+function createListItemInput(parentId: string, index: number, elementType: NBTList["elementType"], labelText: string = index+"") {
 	let inputElement: HTMLElement
 
 	if (elementType.type === "string") {
@@ -187,12 +193,31 @@ function createListItemInput(parentId: string, index: number, elementType: NBTLi
 
 	inputElement.dataset.key = index+""
 
-	if (elementType.type === "compound") {
+	if (["compound", "list", "tuple"].includes(elementType.type)) {
 		return inputElement
 	}
 
 	const label = createElement("label", {})
-	label.textContent = index+""
+	label.textContent = labelText+""
 	label.appendChild(inputElement)
 	return label
+}
+
+function createTupleInput(id: string, name: string, def: NBTTuple) {
+	const element = createElement("details", { id, className: "tuple-input" })
+	const summaryElement = createElement("summary", { className: "tuple-input-name" })
+
+	console.log("Creating tuple input for", id, name, def)
+	summaryElement.textContent = name
+	element.open = true // Open by default
+	element.appendChild(summaryElement)
+
+	for (let i = 0; i < def.labels.length; i++) {
+		const label = def.labels[i]
+		const inputElement = createListItemInput(id, i, def.elementType, label)
+
+		element.appendChild(inputElement)
+	}
+
+	return element
 }

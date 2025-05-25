@@ -1,4 +1,5 @@
-form, .compound-input {
+form,
+.compound-input {
 	display: flex;
 	flex-direction: column;
 }
@@ -9,7 +10,9 @@ form {
 	font-size: 16px;
 }
 
-.compound-input label {
+.compound-input label
+.list-input label,
+.tuple-input label {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
@@ -22,8 +25,16 @@ form {
 }
 
 .compound-input > .compound-input-generic-children,
-.compound-input > .compound-input-specific-children {
+.compound-input > .compound-input-specific-children,
+.list-input > :not(summary),
+.tuple-input > :not(summary) {
 	padding-inline: calc(2em * 0.6); /* indent by 2, 0.6 to convert height to */
+}
+
+.compound-input > .compound-input-generic-children,
+.compound-input > .compound-input-specific-children,
+.list-input,
+.tuple-input {
 	display: flex;
 	flex-direction: column;
 }

@@ -14,8 +14,9 @@ export default {
 			strikethrough: { type: "boolean", default: false },
 			obfuscated: { type: "boolean", default: false },
 			shadow_color: {
-				type: "compound",
-				children: {}
+				type: "tuple",
+				elementType: { type: "number", min: 0, max: 1, step: 0.003921569 },
+				labels: ["red", "green", "blue", "alpha"]
 			}
 		}
 	}

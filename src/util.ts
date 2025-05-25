@@ -18,14 +18,9 @@ export function readFormElements(elements: Element[], array: boolean = false): R
 	const data: Record<string, any> = {}
 
 	for (const element of elements) {
-		if (element instanceof HTMLLabelElement) {
-			const input = element.children[0] as HTMLInputElement | HTMLSelectElement | HTMLDivElement
+		if (element instanceof HTMLLabelElement) { // boolean, number, string, select
+			const input = element.children[0] as HTMLInputElement | HTMLSelectElement
 			if (!input) continue
-
-			if (input instanceof HTMLDivElement) { // list
-				data[input.dataset.key!] = readFormElements(Array.from(input.children), true)
-				continue
-			}
 
 			if (input.type === "checkbox") { // boolean
 				data[input.dataset.key!] = input.checked
@@ -34,8 +29,12 @@ export function readFormElements(elements: Element[], array: boolean = false): R
 			} else { // string or select
 				data[input.dataset.key!] = input.value
 			}
-		} else if (element instanceof HTMLDetailsElement) { // compound
-			data[element.dataset.key!] = readFormData(element)
+		} else if (element instanceof HTMLDetailsElement) { // compound, list, tuple
+			if (element.classList.contains("compound-input")) { // compound
+				data[element.dataset.key!] = readFormData(element)
+			} else { // list or tuple
+				data[element.dataset.key!] = readFormElements(Array.from(element.children), true)
+			}
 		}
 	}
 

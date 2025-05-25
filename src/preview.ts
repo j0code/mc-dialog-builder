@@ -40,7 +40,7 @@ function createBody(dialogData: any) {
 			const bodyElement = createElement("p", { className: "preview-body-element" })
 			const firstComp: BaseTextComponent = elem.contents?.[0] ?? defaultTextComponent
 
-			console.log("elem", elem)
+			// console.log("elem", elem)
 			for (const component of elem.contents || []) {
 				bodyElement.appendChild(renderTextComponent(component as TextComponent, firstComp))
 			}
@@ -62,15 +62,19 @@ function renderTextComponent(component: TextComponent, parent: BaseTextComponent
 	const element = createElement("span", { className: "text-component" })
 	const shadow = component.shadow_color || [0, 0, 0, 1] // default shadow color if not provided   (TODO: use darkened color)
 	const shadowCss = `${shadow[0] * 255} ${shadow[1] * 255} ${shadow[2] * 255} / ${shadow[3] * 100}%`
+	const bold = component.bold ?? parent.bold ?? defaultTextComponent.bold
+	const italic = component.italic ?? parent.italic ?? defaultTextComponent.italic
+	const underlined = component.underlined ?? parent.underlined ?? defaultTextComponent.underlined
+	const strikethrough = component.strikethrough ?? parent.strikethrough ?? defaultTextComponent.strikethrough
 
-	console.log("Rendering component:", component, "with parent:", parent)
+	// console.log("Rendering component:", component, "with parent:", parent)
 	element.textContent = component.text || ""
 	element.style.color = component.color || parent.color || defaultTextComponent.color
-	element.style.fontWeight = component.bold ? "bold" : "normal"
-	element.style.fontStyle = component.italic ? "italic" : "normal"
-	element.style.textDecoration = component.underlined ? "underline" : "none"
-	element.style.textDecoration += component.strikethrough ? " line-through" : ""
-	element.style.textShadow = component.shadow_color ? `1px 1px rgb(${shadowCss})` : "none"
+	element.style.fontWeight = bold ? "bold" : "normal"
+	element.style.fontStyle = italic ? "italic" : "normal"
+	element.style.textDecoration = underlined ? "underline" : "none"
+	element.style.textDecoration += strikethrough ? " line-through" : ""
+	element.style.textShadow = `1px 1px rgb(${shadowCss})`
 	return element
 }
 

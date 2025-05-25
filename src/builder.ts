@@ -46,6 +46,7 @@ function createSelect(id: string, options: { value: string, name?: string }[]) {
 		optionElement.textContent = option.name || option.value
 		element.appendChild(optionElement)
 	}
+	element.dataset.type = "select"
 
 	return element
 }
@@ -55,6 +56,7 @@ function createStringInput(id: string, def: NBTString) {
 
 	element.type = "text"
 	element.placeholder = def.placeholder || ""
+	element.dataset.type = "string"
 
 	return element
 }
@@ -67,17 +69,22 @@ function createNumberInput(id: string, def: NBTNumber) {
 	if (def.max  != undefined) element.max  = String(def.max)
 	if (def.step != undefined) element.step = String(def.step)
 	element.value = String(def.default || def.min || 0)
+	element.dataset.type = "number"
 
 	return element
 }
 
 function createBooleanInput(id: string, def: NBTBoolean) {
-	const element = createElement("input", { id, className: "boolean-input" })
+	const element = createElement("select", { id, className: "boolean-input" })
+	const trueOption = createElement("option", { value: "true", textContent: "true" })
+	const falseOption = createElement("option", { value: "false", textContent: "false" })
+	const unsetOption = createElement("option", { value: "unset", textContent: "unset" })
 
-	element.type = "checkbox"
-	if (def.default) {
-		element.checked = true
-	}
+	element.appendChild(trueOption)
+	element.appendChild(falseOption)
+	element.appendChild(unsetOption)
+	element.value = String(def.default ?? "unset")
+	element.dataset.type = "boolean"
 
 	return element
 
@@ -91,6 +98,7 @@ function createCompoundInput(id: string, name: string, def: NBTCompound) {
 
 	summaryElement.textContent = name
 	element.open = true // Open by default
+	element.dataset.type = "compound"
 	setCompoundChildren(id, def, genericChildren, def.children, specificChildren)
 
 	if ("type" in def.children && def.children.type.type == "select") {
@@ -165,6 +173,7 @@ function createListInput(id: string, name: string, def: NBTList) {
 	addButton.type = "button"
 	summaryElement.textContent = name
 	element.open = true // Open by default
+	element.dataset.type = "list"
 
 	addButton.addEventListener("click", () => {
 		const itemElement = createListItemInput(id, element.childElementCount - 2, def.elementType) // -2 to skip the summary and add button
@@ -210,6 +219,7 @@ function createTupleInput(id: string, name: string, def: NBTTuple) {
 	console.log("Creating tuple input for", id, name, def)
 	summaryElement.textContent = name
 	element.open = true // Open by default
+	element.dataset.type = "tuple"
 	element.appendChild(summaryElement)
 
 	for (let i = 0; i < def.labels.length; i++) {

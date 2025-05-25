@@ -43,7 +43,19 @@ export type NBTTextComponent = {
 	type: "text_component"
 }
 
-export type TextTextComponent = {
+export type BaseTextComponent = {
+	type: string,
+	color?: string,
+	font?: string,
+	bold?: boolean,
+	italic?: boolean,
+	underlined?: boolean,
+	strikethrough?: boolean,
+	obfuscated?: boolean,
+	shadow_color?: [number, number, number, number]
+}
+
+export type TextTextComponent = BaseTextComponent & {
 	type: "text",
 	text: string,
 }

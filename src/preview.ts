@@ -59,6 +59,12 @@ function createFooter(dialogData: any) {
 
 function renderTextComponent(component: TextComponent) {
 	const element = createElement("span", { className: "text-component" })
-	element.textContent = component.text || "No text provided"
+	element.textContent = component.text || ""
+	element.style.color = component.color || "white"
+	element.style.fontWeight = component.bold ? "bold" : "normal"
+	element.style.fontStyle = component.italic ? "italic" : "normal"
+	element.style.textDecoration = component.underlined ? "underline" : "none"
+	element.style.textDecoration += component.strikethrough ? " line-through" : ""
+	element.style.textShadow = component.shadow_color ? `1px 1px ${component.shadow_color}` : "none"
 	return element
 }

@@ -1,5 +1,6 @@
 :root {
 	color-scheme: light dark;
+	--button-height: 30px;
 }
 
 #mc-dialog-builder {
@@ -22,7 +23,7 @@ form {
 	height: 100vh;
 }
 
-label {
+#mc-dialog-builder label {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
@@ -94,6 +95,9 @@ body {
 }
 
 #preview-body {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 	flex: 1 1 auto;
 	overflow: auto;
 	padding: 10px;
@@ -113,7 +117,7 @@ body {
 	cursor: pointer;
 	background-color: #939393;
 	border: 2px solid black;
-	height: 30px;
+	height: var(--button-height);
 
 	&:hover, &:active, &:focus-visible {
 		border-color: white;
@@ -137,4 +141,44 @@ body {
 	justify-items: center;
 	justify-content: center;
 	flex-wrap: wrap;
+}
+
+.input-element {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+}
+
+.input-element:has(> [type="text"]) {
+	flex-direction: column;
+}
+
+.input-label {
+	justify-content: center;
+}
+
+.input-element > input[type="text"] {
+	background-color: black;
+	border: 2px solid #a0a0a0;
+	color: white;
+	height: var(--button-height);
+
+	&:hover, &:active, &:focus-within {
+		border-color: white;
+		outline: none;
+	}
+}
+
+.input-element > input[type="checkbox"] {
+	background-color: black;
+	border: 2px solid #a0a0a0;
+	border-radius: 0px;
+	color: white;
+	width: var(--button-height);
+	height: var(--button-height);
+
+	&:hover, &:active, &:focus-visible {
+		border-color: white;
+		outline: none;
+	}
 }

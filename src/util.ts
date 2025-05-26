@@ -15,10 +15,10 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
 export function readFormData(form: HTMLDetailsElement): Record<string, any> {
 	const elements = Array.from(form.children[1].children).concat(Array.from(form.children[2].children))
 
-	return readFormElements(elements)
+	return readFormElements(elements) || {}
 }
 
-export function readFormElements(elements: Element[], array: boolean = false): Record<string, any> {
+export function readFormElements(elements: Element[], array: boolean = false): Record<string, any> | undefined {
 	const data: Record<string, any> = {}
 
 	for (const element of elements) {
@@ -31,7 +31,7 @@ export function readFormElements(elements: Element[], array: boolean = false): R
 			} else if (input.type === "number") { // number
 				data[input.dataset.key!] = Number(input.value)
 			} else { // string, select
-				data[input.dataset.key!] = input.value
+				data[input.dataset.key!] = input.value || undefined
 			}
 		} else if (element instanceof HTMLDetailsElement) { // compound, list, tuple
 			if (element.classList.contains("compound-input")) { // compound
@@ -43,7 +43,8 @@ export function readFormElements(elements: Element[], array: boolean = false): R
 	}
 
 	if (array) {
-		return Object.values(data)
+		const list = Object.values(data)
+		return list.length > 0 ? list : undefined
 	}
 	return data
 }

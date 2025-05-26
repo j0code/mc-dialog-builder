@@ -1,4 +1,4 @@
-import { BaseTextComponent, ButtonAction, SubmitAction, TextComponent } from "./types.js"
+import { BaseTextComponent, ButtonAction, InputControl, SingleOptionInputControl, SubmitAction, TextComponent } from "./types.js"
 import { createElement, readFormData, resolveTextComponents, stringifyTextComponents } from "./util.js"
 
 const DEFAULT_BUTTON_WIDTH = 150
@@ -59,10 +59,6 @@ function createHeader(title: string) {
 
 function createBody(dialogData: any) {
 	const element = createElement("div", { id: "preview-body" })
-	const bodyContent = document.createElement("p")
-
-	bodyContent.textContent = "TODO"
-	element.appendChild(bodyContent)
 
 	for (const elem of dialogData.body || []) {
 		const bodyElement = createElement("p", { className: "preview-body-element" })
@@ -92,6 +88,8 @@ function createBody(dialogData: any) {
 		}
 
 		element.appendChild(actionGrid)
+	} else if (["minecraft:simple_input_form"].includes(dialogData.type)) {
+		renderInputs(dialogData, element)
 	}
 
 	return element
@@ -209,4 +207,73 @@ function handleSubmit(action: SubmitAction) {
 		// @ts-expect-error
 		console.log(`submit ${action.on_submit.action}:`, action.on_submit)
 	}
+}
+
+function renderInputs(dialogData: any, element: HTMLElement) {
+	const inputsContainer = createElement("div", { id: "inputs-container" })
+	const inputs: InputControl[] = dialogData.inputs || []
+	
+	for (const input of inputs) {
+		const inputElement = createElement("div", { className: "input-element" })
+		const inputField = createElement("input", {})
+
+		let labelText = input.label
+		if (!labelText || labelText.length == 0) {
+			labelText = [{ type: "text", text: "Missing label" }]
+		}
+		
+		if (input.type == "minecraft:text" || input.type == "minecraft:boolean") {
+			const label = createElement("label", { className: "input-label" })
+			
+			inputField.value = (input.initial + "") || ""
+			renderTextComponents(label, labelText)
+			
+			if (input.type == "minecraft:text") {
+				inputField.type = "text"
+				inputField.style.width = `${input.width || 200}px`
+				if (input.label_visible ?? true) inputElement.appendChild(label)
+				inputElement.appendChild(inputField)
+			} else if (input.type == "minecraft:boolean") {
+				inputField.type = "checkbox"
+				inputElement.appendChild(inputField)
+				inputElement.appendChild(label)
+			}
+			
+		} else if (input.type == "minecraft:single_option") {
+			const cycleButton = createElement("button", { className: "input-single-option" })
+			const options = input.options || []
+			let index = options.findIndex(opt => opt.initial)
+			if (index < 0) index = 0 // default to index 0
+
+			cycleButton.style.width = `${input.width || 200}px`
+
+			function updateButtonLabel(input: SingleOptionInputControl) {
+				const option = options[index] ?? { id: "unknown", display: [{ type: "text", text: "Unknown Option" }] }
+				const optionText = option.display ?? []
+				if (optionText.length == 0) {
+					optionText.push({ type: "text", text: option.id || "Unknown Option" })
+				}
+
+				cycleButton.innerHTML = "" // Clear previous content
+				if (input.label_visible ?? true) {
+					renderTextComponents(cycleButton, labelText.concat({ type: "text", text: ": " }, optionText))
+				} else {
+					renderTextComponents(cycleButton, optionText)
+				}
+			}
+
+			updateButtonLabel(input)
+			cycleButton.addEventListener("click", () => {
+				index = (index + 1) % options.length
+				updateButtonLabel(input)
+			})
+			
+			inputElement.appendChild(cycleButton)
+
+		}
+		
+		inputsContainer.appendChild(inputElement)
+	}
+
+	element.appendChild(inputsContainer)
 }

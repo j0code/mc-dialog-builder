@@ -140,3 +140,53 @@ export type SubmitEvent = {
 	action: "minecraft:custom_form",
 	id: string
 }
+
+export type BaseInputControl = {
+	type: string,
+	key: string
+}
+
+export type TextInputControl = BaseInputControl & {
+	type: "minecraft:text",
+	width: number,
+	label: TextComponent[],
+	label_visible?: boolean,
+	initial: string,
+	max_length?: number,
+	multiline?: {
+		max_lines: number,
+		height: number
+	}
+}
+
+export type BooleanInputControl = BaseInputControl & {
+	type: "minecraft:boolean",
+	label: TextComponent[],
+	initial?: boolean,
+	on_true: string,
+	on_false: string
+}
+
+export type SingleOptionInputControl = BaseInputControl & {
+	type: "minecraft:single_option",
+	width: number,
+	label: TextComponent[],
+	label_visible?: boolean,
+	options: {
+		id: string,
+		display: TextComponent[],
+		initial?: boolean
+	}[]
+}
+
+export type NumberRangeInputControl = BaseInputControl & {
+	type: "minecraft:number_range",
+	width: number,
+	label: TextComponent[],
+	initial: number,
+	min: number,
+	max: number,
+	step: number
+}
+
+export type InputControl = TextInputControl | BooleanInputControl | SingleOptionInputControl | NumberRangeInputControl

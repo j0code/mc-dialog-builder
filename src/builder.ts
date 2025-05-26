@@ -4,7 +4,7 @@ import { previewDialog } from "./preview.js"
 import { getRegistry } from "./registries.js"
 import text_component from "./data/text_component.js"
 import { NBTBoolean, NBTCompound, NBTList, NBTNumber, NBTString, NBTTuple, NBTValue } from "./types.js"
-import { createElement } from "./util.js"
+import { createElement, readFormData } from "./util.js"
 import submit_action from "./data/submit_action.js"
 import input_control from "./data/input_control.js"
 
@@ -37,15 +37,30 @@ export function createForm() {
 		}
 	})
 
-	const previewButton = createElement("button", { id: "preview-button", className: "button" })
+	const previewButton = createElement("button", { id: "preview-button" })
 	previewButton.textContent = "Preview"
 	previewButton.type = "button"
 	previewButton.addEventListener("click", () => {
 		previewDialog()
 	})
 
+	const copyButton = createElement("button", { id: "copy-button" })
+	copyButton.textContent = "Copy to Clipboard"
+	copyButton.type = "button"
+	copyButton.addEventListener("click", () => {
+		const data = readFormData(dialogElement)
+		const json = JSON.stringify(data)
+		navigator.clipboard.writeText(json).then(() => {
+			alert("Data copied to clipboard!")
+		}).catch(err => {
+			console.error("Failed to copy: ", err)
+			alert("Failed to copy data to clipboard.")
+		})
+	})
+
 	form.appendChild(dialogElement)
 	form.appendChild(previewButton)
+	form.appendChild(copyButton)
 	document.body.appendChild(form)
 }
 

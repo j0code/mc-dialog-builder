@@ -64,6 +64,11 @@ export function createForm() {
 		})
 	})
 
+	// auto reload preview on change (TODO: toggle)
+	form.addEventListener("change", () => {
+		previewDialog()
+	})
+
 	form.appendChild(dialogElement)
 	form.appendChild(previewButton)
 	form.appendChild(copyButton)

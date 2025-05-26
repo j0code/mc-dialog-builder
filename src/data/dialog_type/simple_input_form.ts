@@ -4,8 +4,7 @@ export default {
 	type: "compound",
 	children: {
 		action: {
-			type: "submit_action",
-			required: true
+			type: "submit_action"
 		},
 		inputs: {
 			type: "list",

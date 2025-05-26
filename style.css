@@ -5,10 +5,30 @@
 	--button-height: 30px;
 }
 
+#builder-container {
+	display: flex;
+	flex-direction: column;
+}
+
+#controls {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	background: light-dark(#d0d0d2, #303033);
+	padding: 20px;
+	gap: 8px;
+
+	button {
+		padding: 5px 10px;
+		width: 10em;
+	}
+}
+
 #mc-dialog-builder {
 	background-color: light-dark(#e0e0e2, #404044);
 	color: light-dark(#141410, #e4e4e0);
 	scrollbar-gutter: stable;
+	flex: 1 1 auto;
 }
 
 form,
@@ -22,10 +42,13 @@ form {
 	font-family: monospace;
 	font-size: 16px;
 	overflow: clip scroll;
-	height: 100vh;
 }
 
-#mc-dialog-builder label {
+#builder-container input[type="checkbox"] {
+	margin: 0px;
+}
+
+#builder-container label {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
@@ -73,6 +96,7 @@ body {
 	display: flex;
 	flex-direction: row;
 	overflow: hidden;
+	height: 100vh;
 }
 
 * {

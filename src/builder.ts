@@ -4,10 +4,9 @@ import { previewDialog } from "./preview.js"
 import { getRegistry } from "./registries.js"
 import text_component from "./data/text_component.js"
 import { NBTBoolean, NBTCompound, NBTList, NBTNumber, NBTString, NBTTuple, NBTValue } from "./types.js"
-import { createElement, readFormData } from "./util.js"
+import { $, createElement } from "./util.js"
 import submit_action from "./data/submit_action.js"
 import input_control from "./data/input_control.js"
-import ValidationError from "./ValidationError.js"
 
 const specialTypeMapping: Record<string, NBTCompound | NBTList> = {
 	text_component,
@@ -39,40 +38,16 @@ export function createForm() {
 		required: true
 	})
 
-	const previewButton = createElement("button", { id: "preview-button" })
-	previewButton.textContent = "Preview"
-	previewButton.type = "button"
-	previewButton.addEventListener("click", () => {
-		previewDialog()
-	})
-
-	const copyButton = createElement("button", { id: "copy-button" })
-	copyButton.textContent = "Copy to Clipboard"
-	copyButton.type = "button"
-	copyButton.addEventListener("click", () => {
-		const data = readFormData(form)
-		if (data instanceof ValidationError) {
-			alert("ValidationError:\n" + data.message)
-			return
-		}
-		const json = JSON.stringify(data)
-		navigator.clipboard.writeText(json).then(() => {
-			alert("Data copied to clipboard!")
-		}).catch(err => {
-			console.error("Failed to copy: ", err)
-			alert("Failed to copy data to clipboard.")
-		})
-	})
+	
 
 	// auto reload preview on change (TODO: toggle)
 	form.addEventListener("change", () => {
-		previewDialog()
+		console.log("CHANGE", $("#auto-reload-checkbox", "input")?.checked)
+		if (!$("#auto-reload-checkbox", "input")?.checked) return
+		;previewDialog()
 	})
 
 	form.appendChild(dialogElement)
-	form.appendChild(previewButton)
-	form.appendChild(copyButton)
-	document.body.appendChild(form)
 	return form
 }
 

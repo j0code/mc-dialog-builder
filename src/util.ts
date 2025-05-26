@@ -13,6 +13,17 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
 	return element
 }
 
+export function $<K extends keyof HTMLElementTagNameMap>(query: string, tagName?: K): HTMLElementTagNameMap[K] {
+	const element = document.querySelector(query)
+
+	if (!element) throw new Error(`Element not found for query: ${query}`)
+	if (tagName && element.tagName.toLowerCase() !== tagName) {
+		throw new Error(`Element found for query: ${query}, but it is not a ${tagName}.`)
+	}
+
+	return element as HTMLElementTagNameMap[K]
+}
+
 export function readFormData(form: HTMLFormElement): Record<string, any> | ValidationError {
 	const dialog = form.children[0] as HTMLDetailsElement
 	

@@ -2,7 +2,7 @@ body {
 	position: relative;
 }
 
-#mc-dialog-builder {
+#builder-container {
 	width: 50vw;
 	min-width: 100px;
 }

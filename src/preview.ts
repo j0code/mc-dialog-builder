@@ -1,5 +1,5 @@
 import { BaseTextComponent, ButtonAction, InputControl, SingleOptionInputControl, SubmitAction, TextComponent } from "./types.js"
-import { createElement, readFormData, resolveTextComponents, stringifyTextComponents } from "./util.js"
+import { $, createElement, readFormData, resolveTextComponents, stringifyTextComponents } from "./util.js"
 import ValidationError from "./ValidationError.js"
 
 const DEFAULT_BUTTON_WIDTH = 150
@@ -32,8 +32,8 @@ const submitButton: Omit<SubmitAction, "on_submit"> = {
 }
 
 export function previewDialog() {
-	const form = document.getElementById("mc-dialog-builder") as HTMLFormElement
-	const preview = document.getElementById("preview") as HTMLDivElement
+	const form = $("#mc-dialog-builder", "form")
+	const preview = $("#preview", "div")
 	const dialogData = readFormData(form)
 	preview.innerHTML = "" // Clear previous preview content
 

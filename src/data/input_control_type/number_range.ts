@@ -7,8 +7,8 @@ export default {
 		label:   { type: "text_component" },
 		label_format: { type: "string", placeholder: "translation key", default: "options.generic_value" },
 		initial: { type: "number", step: 0.001 },
-		start:   { type: "number", step: 0.001 },
-		end:     { type: "number", step: 0.001 },
+		start:   { type: "number", step: 0.001, required: true },
+		end:     { type: "number", step: 0.001, required: true },
 		step:    { type: "number", min: 0, step: 0.001 }
 	}
 } satisfies NBTCompound

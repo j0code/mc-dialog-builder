@@ -11,29 +11,34 @@ export type NBTCompound = {
 	type: "compound"
 	children: {
 		[key: string]: NBTValue
-	}
+	},
+	required?: boolean,
 }
 
 export type NBTList = {
 	type: "list",
-	elementType: NBTValue
+	elementType: NBTValue,
+	required?: boolean,
 }
 
 export type NBTTuple = {
 	type: "tuple",
 	elementType: NBTValue,
-	labels: string[]
+	labels: string[],
+	required?: boolean,
 }
 
 export type NBTSelect = {
 	type: "select",
-	registry: RegistryKey
+	registry: RegistryKey,
+	required?: boolean,
 }
 
 export type NBTString = {
 	type: "string",
 	default?: string,
 	placeholder?: string,
+	required?: boolean,
 }
 
 export type NBTNumber = {
@@ -41,32 +46,39 @@ export type NBTNumber = {
 	default?: number,
 	min?: number,
 	max?: number,
-	step?: number
+	step?: number,
+	required?: boolean,
 }
 
 export type NBTBoolean = {
 	type: "boolean",
-	default?: boolean
+	default?: boolean,
+	required?: boolean,
 }
 
 export type NBTTextComponent = {
-	type: "text_component"
+	type: "text_component",
+	required?: boolean,
 }
 
 export type NBTClickAction = {
-	type: "click_action"
+	type: "click_action",
+	required?: boolean,
 }
 
 export type NBTClickEvent = {
-	type: "click_event"
+	type: "click_event",
+	required?: boolean,
 }
 
 export type NBTSubmitAction = {
-	type: "submit_action"
+	type: "submit_action",
+	required?: boolean,
 }
 
 export type NBTInputControl = {
-	type: "input_control"
+	type: "input_control",
+	required?: boolean,
 }
 
 export type BaseTextComponent = {
@@ -130,14 +142,14 @@ export type SubmitAction = {
 }
 
 export type SubmitEvent = {
-	action: "minecraft:command_template",
+	type: "minecraft:command_template",
 	template: string
 } | {
-	action: "minecraft:custom_template",
+	type: "minecraft:custom_template",
 	template: string,
 	id: string
 } | {
-	action: "minecraft:custom_form",
+	type: "minecraft:custom_form",
 	id: string
 }
 

@@ -1,4 +1,5 @@
 import { TextComponent, TextTextComponent } from "./types.js"
+import ValidationError from "./ValidationError.js"
 
 export function createElement<K extends keyof HTMLElementTagNameMap>(
 	tagName: K,
@@ -12,7 +13,19 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
 	return element
 }
 
-export function readFormData(form: HTMLDetailsElement): Record<string, any> {
+export function readFormData(form: HTMLFormElement): Record<string, any> | ValidationError {
+	const dialog = form.children[0] as HTMLDetailsElement
+	
+	try {
+		return readFormCompoundData(dialog)
+	} catch (e) {
+		if (!(e instanceof ValidationError)) throw `bro, ValidationErrors only! (${e})`
+		console.error("ValidationError:", e.message)
+		return e
+	}
+}
+
+export function readFormCompoundData(form: HTMLDetailsElement): Record<string, any> {
 	const elements = Array.from(form.children[1].children).concat(Array.from(form.children[2].children))
 
 	return readFormElements(elements) || {}
@@ -31,13 +44,31 @@ export function readFormElements(elements: Element[], array: boolean = false): R
 			} else if (input.type === "number") { // number
 				data[input.dataset.key!] = Number(input.value)
 			} else { // string, select
-				data[input.dataset.key!] = input.value || undefined
+				let value = input.value
+				if (input.dataset.type == "select" && value == "@") {
+					value = ""
+					if (input.required) {
+						throw new ValidationError("%s is required!", input.id)
+					}
+				}
+				
+				if (value || input.required) data[input.dataset.key!] = value || ""
 			}
 		} else if (element instanceof HTMLDetailsElement) { // compound, list, tuple
 			if (element.classList.contains("compound-input")) { // compound
-				data[element.dataset.key!] = readFormData(element)
+				const compoundData = readFormCompoundData(element)
+				if (Object.keys(compoundData).length == 0) {
+					if (element.dataset.required == "true") {
+						throw new ValidationError("%s is required!", element.id)
+					} else {
+						continue
+					}
+				}
+				data[element.dataset.key!] = readFormCompoundData(element)
 			} else { // list or tuple
-				data[element.dataset.key!] = readFormElements(Array.from(element.children), true)
+				const children = Array.from(element.children)
+				if (element.dataset.required == "false" && children.length <= 2) continue // 2 because summary and add button are counted
+				data[element.dataset.key!] = readFormElements(children, true) ?? []
 			}
 		}
 	}

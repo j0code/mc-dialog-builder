@@ -5,12 +5,13 @@ export default {
 	children: {
 		dialogs: {
 			type: "list",
-			elementType: { type: "string" }
+			elementType: { type: "string" },
+			required: true
 		},
 		on_cancel: {
 			type: "click_event"
 		},
-		columns: { type: "number", default: 2, min: 1, step: 1 },
-		button_width: { type: "number", default: 150, min: 1, max: 1024, step: 1 },
+		columns: { type: "number", default: 2, min: 1, step: 1, required: true },
+		button_width: { type: "number", default: 150, min: 1, max: 1024, step: 1, required: true },
 	}
 } satisfies NBTCompound

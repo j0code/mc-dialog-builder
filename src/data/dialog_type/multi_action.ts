@@ -7,9 +7,10 @@ export default {
 				type: "list",
 				elementType: {
 					type: "click_action"
-				}
+				},
+				required: true
 			},
-			columns: { type: "number", default: 2, min: 1, step: 1 },
+			columns: { type: "number", default: 2, min: 1, step: 1, required: true },
 			on_cancel: { type: "click_event" },
 		}
 	} satisfies NBTCompound

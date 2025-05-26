@@ -45,6 +45,17 @@ form {
 	flex-direction: column;
 }
 
+:required,
+[data-required="true"] {
+	> summary {
+		color: red;
+	}
+}
+
+[data-labels-required="true"] {
+	color: red;
+}
+
 summary {
 	margin-left: calc(-1em * 0.66 - 1em * 0.4); /* marker width + marker margin right */
 }

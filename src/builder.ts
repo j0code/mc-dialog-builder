@@ -7,8 +7,9 @@ import { NBTBoolean, NBTCompound, NBTList, NBTNumber, NBTString, NBTTuple, NBTVa
 import { createElement, readFormData } from "./util.js"
 import submit_action from "./data/submit_action.js"
 import input_control from "./data/input_control.js"
+import ValidationError from "./ValidationError.js"
 
-const specialTypeMapping: Record<string, NBTValue> = {
+const specialTypeMapping: Record<string, NBTCompound | NBTList> = {
 	text_component,
 	click_action,
 	click_event,
@@ -22,8 +23,8 @@ export function createForm() {
 	const dialogElement = createCompoundInput("dialog", "Dialog", {
 		type: "compound",
 		children: {
-			type: { type: "select", registry: "minecraft:dialog_type" },
-			title: { type: "string", placeholder: "Enter dialog title" },
+			type: { type: "select", registry: "minecraft:dialog_type", required: true },
+			title: { type: "string", placeholder: "Enter dialog title", required: true },
 			external_title: { type: "string", placeholder: "Enter external title" },
 			body: {
 				type: "list",
@@ -33,8 +34,9 @@ export function createForm() {
 					}
 				}
 			},
-			can_close_with_escape: { type: "boolean", default: true }
-		}
+			can_close_with_escape: { type: "boolean" }
+		},
+		required: true
 	})
 
 	const previewButton = createElement("button", { id: "preview-button" })
@@ -48,7 +50,11 @@ export function createForm() {
 	copyButton.textContent = "Copy to Clipboard"
 	copyButton.type = "button"
 	copyButton.addEventListener("click", () => {
-		const data = readFormData(dialogElement)
+		const data = readFormData(form)
+		if (data instanceof ValidationError) {
+			alert("ValidationError:\n" + data.message)
+			return
+		}
 		const json = JSON.stringify(data)
 		navigator.clipboard.writeText(json).then(() => {
 			alert("Data copied to clipboard!")
@@ -64,16 +70,20 @@ export function createForm() {
 	document.body.appendChild(form)
 }
 
-function createSelect(id: string, options: { value: string, name?: string }[]) {
+function createSelect(id: string, options: { value: string, name?: string }[], required: boolean) {
 	const element = createElement("select", { id, className: "select-input" })
 
+	if (!required) {
+		const optionElement = createElement("option", { value: "@", textContent: "(unset)" })
+		element.appendChild(optionElement)
+	}
+
 	for (const option of options) {
-		const optionElement = document.createElement("option")
-		optionElement.value = option.value
-		optionElement.textContent = option.name || option.value
+		const optionElement = createElement("option", { value: option.value, textContent: option.name || option.value })
 		element.appendChild(optionElement)
 	}
 	element.dataset.type = "select"
+	element.dataset.required = required+""
 
 	return element
 }
@@ -83,6 +93,8 @@ function createStringInput(id: string, def: NBTString) {
 
 	element.type = "text"
 	element.placeholder = def.placeholder || ""
+	element.required = def.required ?? false
+	element.value = def.default || ""
 	element.dataset.type = "string"
 
 	return element
@@ -109,7 +121,7 @@ function createBooleanInput(id: string, def: NBTBoolean) {
 
 	element.appendChild(trueOption)
 	element.appendChild(falseOption)
-	element.appendChild(unsetOption)
+	if (!def.required) element.appendChild(unsetOption)
 	element.value = String(def.default ?? "unset")
 	element.dataset.type = "boolean"
 
@@ -124,21 +136,24 @@ function createCompoundInput(id: string, name: string, def: NBTCompound) {
 	const specificChildren = createElement("div", { className: "compound-input-specific-children" })
 
 	summaryElement.textContent = name
-	element.open = true // Open by default
+	element.open = def.required ?? false // collapse if optional
 	element.dataset.type = "compound"
-	setCompoundChildren(id, def, genericChildren, def.children, specificChildren)
+	element.dataset.required = (def.required ?? false)+""
 
-	if ("type" in def.children && def.children.type.type == "select") {
+	// console.log("!§", id, def.children, def.required)
+	if ("type" in def.children && def.children.type.type == "select" && def.children.type.required) {
 		const registry = getRegistry(def.children.type.registry)
 		const firstEntry = registry.values().next().value
 		if (firstEntry) setCompoundChildren(id, def, specificChildren, firstEntry.children, specificChildren)
-		console.log(id, firstEntry)
-	} else if ("action" in def.children && def.children.action.type == "select") {
+		// console.log(id, firstEntry)
+	} else if ("action" in def.children && def.children.action.type === "select" && def.children.action.required) {
 		const registry = getRegistry(def.children.action.registry)
 		const firstEntry = registry.values().next().value
 		if (firstEntry) setCompoundChildren(id, def, specificChildren, firstEntry.children, specificChildren)
-		console.log(id, firstEntry)
+		// console.log(id, firstEntry)
 	}
+
+	setCompoundChildren(id, def, genericChildren, def.children, specificChildren)
 
 	element.appendChild(summaryElement)
 	element.appendChild(genericChildren)
@@ -150,12 +165,15 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 	for (let [key, childDef] of Object.entries(children)) {
 		let inputElement: HTMLElement
 
-		if (childDef.type in specialTypeMapping) { //  && childDef.type != "text_component"
-			childDef = specialTypeMapping[childDef.type]
+		if (childDef.type in specialTypeMapping) {
+			const required = "required" in childDef && childDef.required
+			childDef = { ...specialTypeMapping[childDef.type] }
+			// console.log("mapping type", childDef.type, childDef.required, required, parentId, key)
+			childDef.required ??= required
 		}
 
 		if (childDef.type === "select") {
-			inputElement = createSelect(`${parentId}-${key}`, getRegistry(childDef.registry).keys().toArray().map(value => ({ value }))) // Placeholder for options, should be filled with actual data
+			inputElement = createSelect(`${parentId}-${key}`, getRegistry(childDef.registry).keys().toArray().map(value => ({ value })), childDef.required ?? false) // Placeholder for options, should be filled with actual data
 			if (key == "type" || key == "action") {
 				inputElement.addEventListener("change", (event) => {
 					const selectElement = event.target as HTMLSelectElement
@@ -163,7 +181,7 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 					const entry = registry.get(selectElement.value)
 
 					specificChildrenElement.innerHTML = "" // Clear previous specific children
-					setCompoundChildren(parentId, parentDef, specificChildrenElement, entry?.children ?? {}, specificChildrenElement)
+					if (entry) setCompoundChildren(parentId, parentDef, specificChildrenElement, entry?.children ?? {}, specificChildrenElement)
 				})
 			}
 		} else if (childDef.type === "string") {
@@ -191,6 +209,7 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 
 		const label = createElement("label", {})
 		label.textContent = key
+		if (childDef.required != undefined) label.dataset.labelsRequired = childDef.required+""
 		label.appendChild(inputElement)
 		element.appendChild(label)
 	}
@@ -203,24 +222,33 @@ function createListInput(id: string, name: string, def: NBTList) {
 	addButton.textContent = "Add Item"
 	addButton.type = "button"
 	summaryElement.textContent = name
-	element.open = true // Open by default
+	element.open = def.required ?? false // collapse if optional
 	element.dataset.type = "list"
+	element.dataset.required = (def.required ?? false)+""
 
-	addButton.addEventListener("click", () => {
-		const itemElement = createListItemInput(id, element.childElementCount - 2, def.elementType) // -2 to skip the summary and add button
+	function addItem() {
+		const index = element.childElementCount - 2 // -2 to skip the summary and add button
+		let elementType = structuredClone(def.elementType)
+		if (index == 0 && def.required) elementType.required = true
+		const itemElement = createListItemInput(id, index, elementType)
 		element.appendChild(itemElement)
-	})
+	}
+
+	addButton.addEventListener("click", addItem)
 
 	element.appendChild(summaryElement)
 	element.appendChild(addButton)
+	if (def.required) addItem()
 	return element
 }
 
 function createListItemInput(parentId: string, index: number, elementType: NBTList["elementType"], labelText: string = index+"") {
-	let inputElement: HTMLElement
+	let inputElement: HTMLInputElement | HTMLSelectElement | HTMLDetailsElement
 
 	if (elementType.type in specialTypeMapping) {
+		const required = "required" in elementType && elementType.required
 		elementType = specialTypeMapping[elementType.type]
+		elementType.required ??= required
 	}
 
 	if (elementType.type === "string") {
@@ -231,6 +259,7 @@ function createListItemInput(parentId: string, index: number, elementType: NBTLi
 		inputElement = createBooleanInput(`${parentId}-${index}`, elementType)
 	} else if (elementType.type === "compound") {
 		inputElement = createCompoundInput(`${parentId}-${index}`, index+"", elementType)
+		inputElement.open = true // open by default since it has just been created
 	} else {
 		throw new Error(`Unsupported list item type: ${elementType.type}`)
 	}

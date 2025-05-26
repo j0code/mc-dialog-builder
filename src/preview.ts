@@ -1,5 +1,6 @@
 import { BaseTextComponent, ButtonAction, InputControl, SingleOptionInputControl, SubmitAction, TextComponent } from "./types.js"
 import { createElement, readFormData, resolveTextComponents, stringifyTextComponents } from "./util.js"
+import ValidationError from "./ValidationError.js"
 
 const DEFAULT_BUTTON_WIDTH = 150
 
@@ -31,10 +32,15 @@ const submitButton: Omit<SubmitAction, "on_submit"> = {
 }
 
 export function previewDialog() {
-	const form = document.getElementById("dialog") as HTMLDetailsElement
+	const form = document.getElementById("mc-dialog-builder") as HTMLFormElement
 	const preview = document.getElementById("preview") as HTMLDivElement
 	const dialogData = readFormData(form)
 	preview.innerHTML = "" // Clear previous preview content
+
+	if (dialogData instanceof ValidationError) {
+		// TODO: Render Error info
+		return
+	}
 
 	console.log("Dialog Data:", dialogData)
 	
@@ -72,8 +78,6 @@ function createBody(dialogData: any) {
 		const actionGrid = createElement("div", { id: "action-grid" })
 		const columns = dialogData.columns || 2
 
-		actionGrid.style.gridTemplateColumns = `repeat(${dialogData.columns || 2}, 1fr)`
-
 		const actions: ButtonAction[] = dialogData.actions || []
 		let row = createElement("div", { className: "action-grid-row" })
 		for (const action of actions) {
@@ -100,7 +104,7 @@ function createFooter(dialogData: any) {
 
 	if (dialogData.type == "minecraft:notice") {
 		const action: ButtonAction = dialogData.action ?? { label: { type: "text", text: "Ok" }, width: DEFAULT_BUTTON_WIDTH }
-		if (action.label.length == 0) action.label = [{ type: "text", text: "Ok" }]
+		if (!action.label || action.label.length == 0) action.label = [{ type: "text", text: "Ok" }]
 
 		const closeButton = renderButton(action)
 
@@ -197,12 +201,12 @@ function handleClick(action: ButtonAction) {
 }
 
 function handleSubmit(action: SubmitAction) {
-	if (action.on_submit.action == "minecraft:command_template") {
-		console.log(`submit ${action.on_submit.action}:`, action.on_submit.template)
-	} else if (action.on_submit.action == "minecraft:custom_template") {
-		console.log(`submit ${action.on_submit.action}:`, `(${action.on_submit.id})`, action.on_submit.template)
-	} else if (action.on_submit.action == "minecraft:custom_form") {
-		console.log(`submit ${action.on_submit.action}:`, `${action.on_submit.id}`)
+	if (action.on_submit.type == "minecraft:command_template") {
+		console.log(`submit ${action.on_submit.type}:`, action.on_submit.template)
+	} else if (action.on_submit.type == "minecraft:custom_template") {
+		console.log(`submit ${action.on_submit.type}:`, `(${action.on_submit.id})`, action.on_submit.template)
+	} else if (action.on_submit.type == "minecraft:custom_form") {
+		console.log(`submit ${action.on_submit.type}:`, `${action.on_submit.id}`)
 	} else {
 		// @ts-expect-error
 		console.log(`submit ${action.on_submit.action}:`, action.on_submit)
@@ -225,7 +229,7 @@ function renderInputs(dialogData: any, element: HTMLElement) {
 		if (input.type == "minecraft:text" || input.type == "minecraft:boolean") {
 			const label = createElement("label", { className: "input-label" })
 			
-			inputField.value = (input.initial + "") || ""
+			inputField.value = (input.initial || "") + ""
 			renderTextComponents(label, labelText)
 			
 			if (input.type == "minecraft:text") {

@@ -1,0 +1,40 @@
+body {
+	position: relative;
+}
+
+#mc-dialog-builder {
+	width: 50vw;
+	min-width: 100px;
+}
+
+#preview {
+	flex: 1;
+	min-width: 100px;
+}
+
+#draggable-border {
+	width: 12px;
+	cursor: col-resize;
+	position: relative;
+	z-index: 1;
+	margin: 0 -6px;
+}
+
+#draggable-border::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 50%;
+	width: 1px;
+	background-color: transparent;
+	transform: translateX(-50%);
+	transition: background-color 0.2s;
+}
+
+#draggable-border:hover::after,
+#draggable-border.dragging::after {
+	background-color: #666;
+	width: 5px;
+	box-shadow: 0 0 4px rgb(0 0 0 / 20%);
+}

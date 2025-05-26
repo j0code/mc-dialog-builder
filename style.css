@@ -1,3 +1,5 @@
+@import url("./border.css");
+
 :root {
 	color-scheme: light dark;
 	--button-height: 30px;
@@ -71,10 +73,6 @@ body {
 	display: flex;
 	flex-direction: row;
 	overflow: hidden;
-
-	> * {
-		width: 50vw;
-	}
 }
 
 * {

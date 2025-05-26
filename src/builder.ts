@@ -68,6 +68,7 @@ export function createForm() {
 	form.appendChild(previewButton)
 	form.appendChild(copyButton)
 	document.body.appendChild(form)
+	return form
 }
 
 function createSelect(id: string, options: { value: string, name?: string }[], required: boolean) {

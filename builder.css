@@ -102,6 +102,10 @@ form {
 		&.add-item > div {
 			mask-image: url("./icons/add-item.svg");
 		}
+
+		&.remove-item > div {
+			mask-image: url("./icons/remove-item.svg");
+		}
 	}
 }
 

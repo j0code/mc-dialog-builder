@@ -110,7 +110,7 @@ function createBooleanInput(id: string, def: NBTBoolean) {
 
 }
 
-function createCompoundInput(id: string, name: string, def: NBTCompound, evenChild: boolean) {
+function createCompoundInput(id: string, name: string, def: NBTCompound, evenChild: boolean, removable: boolean = false) {
 	const element = createElement("div", { id, className: "nesting-input" })
 	const headerBar = createHeaderBar(element, name)
 	const childrenContainer = createElement("div", { className: "children-container" })
@@ -121,6 +121,14 @@ function createCompoundInput(id: string, name: string, def: NBTCompound, evenChi
 	element.dataset.type = "compound"
 	element.dataset.required = (def.required ?? false)+""
 	element.classList.add(evenChild ? "even-child" : "odd-child")
+
+	if (removable) {
+		const removeButton = createHeaderBarButton("Remove item", "remove-item")
+		removeButton.addEventListener("click", () => {
+			element.remove()
+		})
+		headerBar.appendChild(removeButton)
+	}
 
 	// console.log("!§", id, def.children, def.required)
 	if ("type" in def.children && def.children.type.type == "select" && def.children.type.required) {
@@ -242,7 +250,7 @@ function createListItemInput(parentId: string, index: number, elementType: NBTLi
 	} else if (elementType.type === "boolean") {
 		inputElement = createBooleanInput(`${parentId}-${index}`, elementType)
 	} else if (elementType.type === "compound") {
-		inputElement = createCompoundInput(`${parentId}-${index}`, index+"", elementType, !evenChild)
+		inputElement = createCompoundInput(`${parentId}-${index}`, index+"", elementType, !evenChild, true)
 		inputElement.classList.add("open") // open by default since it has just been created
 	} else {
 		throw new Error(`Unsupported list item type: ${elementType.type}`)

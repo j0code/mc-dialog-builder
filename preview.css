@@ -103,7 +103,8 @@
 	justify-content: center;
 }
 
-.input-element > input {
+.input-element > input,
+.input-element > textarea {
 	background-color: black;
 	border: calc(var(--gui-scale) * 1px) solid #a0a0a0;
 	border-radius: 0px;
@@ -121,7 +122,8 @@
 	}
 }
 
-.input-element > input[type="text"] {
+.input-element > input[type="text"],
+.input-element > textarea {
 	width: calc(var(--width) * var(--gui-scale));
 	text-shadow: var(--text-shadow);
 	padding: 0px 3px;
@@ -129,4 +131,9 @@
 
 .input-element > input[type="checkbox"] {
 	width: calc(var(--button-height) * var(--gui-scale));
+}
+
+.input-element > textarea {
+	resize: none;
+	height: calc(var(--height) * var(--gui-scale));
 }

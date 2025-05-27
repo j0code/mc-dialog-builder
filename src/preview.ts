@@ -1,4 +1,4 @@
-import { BaseTextComponent, ButtonAction, InputControl, SingleOptionInputControl, SubmitAction, TextComponent } from "./types.js"
+import { BaseTextComponent, ButtonAction, InputControl, SingleOptionInputControl, SubmitAction, TextComponent, TextInputControl } from "./types.js"
 import { $, createElement, readFormData, resolveTextComponents, stringifyTextComponents } from "./util.js"
 import ValidationError from "./ValidationError.js"
 
@@ -228,22 +228,17 @@ function renderInputs(dialogData: any, element: HTMLElement) {
 			labelText = [{ type: "text", text: "Missing label" }]
 		}
 		
-		if (input.type == "minecraft:text" || input.type == "minecraft:boolean") {
+		if (input.type == "minecraft:text") {
+			renderTextInput(input, inputElement, labelText)
+		} else if (input.type == "minecraft:boolean") {
 			const label = createElement("label", { className: "input-label" })
 			
 			inputField.value = (input.initial || "") + ""
 			renderTextComponents(label, labelText)
 			
-			if (input.type == "minecraft:text") {
-				inputField.type = "text"
-				inputField.style.setProperty("--width", `${input.width || 200}px`)
-				if (input.label_visible ?? true) inputElement.appendChild(label)
-				inputElement.appendChild(inputField)
-			} else if (input.type == "minecraft:boolean") {
-				inputField.type = "checkbox"
-				inputElement.appendChild(inputField)
-				inputElement.appendChild(label)
-			}
+			inputField.type = "checkbox"
+			inputElement.appendChild(inputField)
+			inputElement.appendChild(label)
 			
 		} else if (input.type == "minecraft:single_option") {
 			const cycleButton = createElement("button", { className: "input-single-option" })
@@ -282,4 +277,25 @@ function renderInputs(dialogData: any, element: HTMLElement) {
 	}
 
 	element.appendChild(inputsContainer)
+}
+
+function renderTextInput(input: TextInputControl, inputElement: HTMLDivElement, labelText: TextComponent[]) {
+	const label = createElement("label", { className: "input-label" })
+	const inputField = createElement(input.multiline ? "textarea" : "input", {})
+			
+	inputField.value = (input.initial || "") + ""
+	inputField.maxLength = input.max_length || 15
+	renderTextComponents(label, labelText)
+	
+	if (inputField instanceof HTMLInputElement) inputField.type = "text"
+	inputField.style.setProperty("--width", `${input.width || 200}px`)
+
+	if (input.label_visible ?? true) inputElement.appendChild(label)
+	inputElement.appendChild(inputField)
+
+	if (input.multiline) {
+		const max_lines = input.multiline.max_lines ?? 4
+		const height = input.multiline.height ?? 8 + max_lines * 9
+		inputField.style.setProperty("--height", `${height}px`)
+	}
 }

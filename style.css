@@ -6,6 +6,7 @@
 @import url("./border.css")  layer(base);
 @import url("./themes/default.css") layer(theme);
 @import url("./themes/mcstacker.css") layer(theme);
+@import url("./themes/mcstacker-nostalgia.css") layer(theme);
 
 @layer base {
 	body {

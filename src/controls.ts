@@ -2,7 +2,7 @@ import { previewDialog } from "./preview.js"
 import { $, createElement, readFormData } from "./util.js"
 import ValidationError from "./ValidationError.js"
 
-const themes = ["default", "light", "dark", "mcstacker"]
+const themes = ["default", "light", "dark", "mcstacker", "mcstacker-nostalgia"]
 const defaultGuiScale = 2
 
 export function createControls(form: HTMLFormElement): HTMLDivElement {

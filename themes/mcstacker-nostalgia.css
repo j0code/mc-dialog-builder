@@ -1,0 +1,35 @@
+:root[data-theme="mcstacker-nostalgia"] {
+	color-scheme: light;
+	--controls-bg-color: #F6B3FF;
+	--controls-text-color: #000000;
+	--builder-bg-color: white;
+	--builder-text-color: #000000;
+	--builder-input-bg-color: white;
+	--builder-input-text-color: black;
+	--builder-input-border-color: #767676;
+
+	--even-bg: #ffd;
+	--odd-bg: #FFD783;
+	--frame-color: black;
+
+	details {
+		background-color: rgb(var(--test), var(--test), var(--test));
+
+		> .children-container {
+			border: 2px solid var(--frame-color);
+			border-radius: 10px;
+		}
+		
+		&.even-child > .children-container {
+			background-color: var(--even-bg);
+		}
+
+		&.odd-child > .children-container {
+			background-color: var(--odd-bg);
+		}
+	}
+
+	form > details > .children-container {
+		background-color: rgba(97, 171, 175, 0.5) !important;
+	}
+}

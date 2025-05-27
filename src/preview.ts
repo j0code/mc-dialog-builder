@@ -154,14 +154,14 @@ function renderTextComponent(component: TextComponent, parent: BaseTextComponent
 	element.style.fontStyle = italic ? "italic" : "normal"
 	element.style.textDecoration = underlined ? "underline" : "none"
 	element.style.textDecoration += strikethrough ? " line-through" : ""
-	element.style.textShadow = `1px 1px rgb(${shadowCss})`
+	element.style.textShadow = `calc(var(--gui-scale) * 1px) calc(var(--gui-scale) * 1px) rgb(${shadowCss})`
 	return element
 }
 
 function renderButton(action: ButtonAction | SubmitAction): HTMLButtonElement {
 	const label = resolveTextComponents(action.label)
 	const button = createElement("button", { className: "dialog-button" })
-	button.style.width = `${action.width}px`
+	button.style.setProperty("--width", `${action.width}px`) 
 	console.log("Rendering button:", action)
 
 	if (action.tooltip) {
@@ -234,7 +234,7 @@ function renderInputs(dialogData: any, element: HTMLElement) {
 			
 			if (input.type == "minecraft:text") {
 				inputField.type = "text"
-				inputField.style.width = `${input.width || 200}px`
+				inputField.style.setProperty("--width", `${input.width || 200}px`)
 				if (input.label_visible ?? true) inputElement.appendChild(label)
 				inputElement.appendChild(inputField)
 			} else if (input.type == "minecraft:boolean") {
@@ -249,7 +249,7 @@ function renderInputs(dialogData: any, element: HTMLElement) {
 			let index = options.findIndex(opt => opt.initial)
 			if (index < 0) index = 0 // default to index 0
 
-			cycleButton.style.width = `${input.width || 200}px`
+			cycleButton.style.setProperty("--width", `${input.width || 200}px`)
 
 			function updateButtonLabel(input: SingleOptionInputControl) {
 				const option = options[index] ?? { id: "unknown", display: [{ type: "text", text: "Unknown Option" }] }

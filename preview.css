@@ -1,5 +1,13 @@
 :root {
-	--button-height: 30px;
+	--button-height: 20px;
+	--font-size: calc(var(--gui-scale) * 7px * 1.346153846); /* 1.346153846 because real fonts are smaller */
+	--text-shadow: calc(var(--gui-scale) * 1px) calc(var(--gui-scale) * 1px) #373737;
+}
+
+@property --gui-scale {
+	syntax: "<number>";
+	initial-value: 1;
+	inherits: true;
 }
 
 #preview {
@@ -10,6 +18,9 @@
 	background-color: lightblue;
 	white-space: pre;
 	flex-wrap: wrap;
+	font-size: var(--font-size);
+	font-family: sans-serif;
+	text-shadow: var(--text-shadow);
 }
 
 #preview-header {
@@ -20,8 +31,6 @@
 }
 
 #preview-title {
-	font-size: 1.5em;
-	font-weight: bold;
 	text-align: center;
 }
 
@@ -42,14 +51,17 @@
 	justify-content: center;
 	padding: 20px;
 	/* background-color: yellow; */
-	gap: 10px;
+	gap: calc(var(--gui-scale) * 8px);
 }
 
 #preview button {
 	cursor: pointer;
 	background-color: #939393;
-	border: 2px solid black;
-	height: var(--button-height);
+	border: calc(var(--gui-scale) * 1px) solid black;
+	height: calc(var(--button-height) * var(--gui-scale));
+	width:  calc(var(--width) * var(--gui-scale));
+	font-size: var(--font-size);
+	text-shadow: var(--text-shadow);
 
 	&:hover, &:active, &:focus-visible {
 		border-color: white;
@@ -89,28 +101,26 @@
 	justify-content: center;
 }
 
-.input-element > input[type="text"] {
+.input-element > input {
 	background-color: black;
-	border: 2px solid #a0a0a0;
+	border: calc(var(--gui-scale) * 1px) solid #a0a0a0;
+	border-radius: 0px;
 	color: white;
-	height: var(--button-height);
+	height: calc(var(--button-height) * var(--gui-scale));
+	font-size: var(--font-size);
 
-	&:hover, &:active, &:focus-within {
+	&:active, &:focus-visible {
 		border-color: white;
 		outline: none;
 	}
 }
 
-.input-element > input[type="checkbox"] {
-	background-color: black;
-	border: 2px solid #a0a0a0;
-	border-radius: 0px;
-	color: white;
-	width: var(--button-height);
-	height: var(--button-height);
+.input-element > input[type="text"] {
+	width: calc(var(--width) * var(--gui-scale));
+	text-shadow: var(--text-shadow);
+	padding: 0px 3px;
+}
 
-	&:hover, &:active, &:focus-visible {
-		border-color: white;
-		outline: none;
-	}
+.input-element > input[type="checkbox"] {
+	width: calc(var(--button-height) * var(--gui-scale));
 }

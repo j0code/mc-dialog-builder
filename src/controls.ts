@@ -3,6 +3,7 @@ import { $, createElement, readFormData } from "./util.js"
 import ValidationError from "./ValidationError.js"
 
 const themes = ["default", "light", "dark", "mcstacker"]
+const defaultGuiScale = 2
 
 export function createControls(form: HTMLFormElement): HTMLDivElement {
 	const controls = createElement("div", { id: "controls" })
@@ -89,12 +90,39 @@ export function createControls(form: HTMLFormElement): HTMLDivElement {
 
 	themeLabel.appendChild(themeSelect)
 
+	const guiScaleLabel = createElement("label", { id: "gui-scale-label", textContent: "GUI Scale:" })
+	const guiScaleInput = createElement("input", { id: "gui-scale-input" })
+
+	guiScaleInput.type = "range"
+	guiScaleInput.min = "1"
+	guiScaleInput.max = "5"
+	guiScaleInput.step = "1"
+	guiScaleInput.value = defaultGuiScale.toString()
+
+	$("html").style.setProperty("--gui-scale", defaultGuiScale.toString())
+	guiScaleInput.addEventListener("change", () => {
+		const scale = parseInt(guiScaleInput.value, 10)
+		setGuiScale(scale)
+	})
+
+	guiScaleLabel.appendChild(guiScaleInput)
+
 	controls.appendChild(previewButton)
 	controls.appendChild(copyButton)
 	controls.appendChild(downloadButton)
 	controls.appendChild(autoReloadLabel)
 	controls.appendChild(highlightRequiredLabel)
 	controls.appendChild(themeLabel)
+	controls.appendChild(guiScaleLabel)
 
 	return controls
+}
+
+function setGuiScale(scale: number): void {
+	if (scale < 1) scale = 1
+	if (scale > 5) scale = 5
+	if (isNaN(scale)) scale = 3
+
+	$("#gui-scale-input", "input").value = scale.toString()
+	$("html").style.setProperty("--gui-scale", scale.toString())
 }

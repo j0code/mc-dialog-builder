@@ -77,6 +77,10 @@ form {
 	gap: 5px;
 }
 
+.nesting-input {
+	position: relative;
+}
+
 .nesting-input-head {
 	display: flex;
 	flex-direction: row;

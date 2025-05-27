@@ -139,7 +139,7 @@ function createFooter(dialogData: any) {
 
 		element.appendChild(closeButton)
 	} else if (["minecraft:simple_input_form"].includes(dialogData.type)) {
-		const action: SubmitAction = { ...submitButton, on_submit: dialogData.action.on_submit }
+		const action: SubmitAction = { ...submitButton, on_submit: dialogData.action?.on_submit || { type: "minecraft:custom_form", id: "" } }
 
 		const closeButton = renderButton(action)
 

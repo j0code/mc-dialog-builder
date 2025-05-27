@@ -112,14 +112,11 @@ function createBooleanInput(id: string, def: NBTBoolean) {
 
 function createCompoundInput(id: string, name: string, def: NBTCompound, evenChild: boolean) {
 	const element = createElement("div", { id, className: "nesting-input" })
-	const headerBar = createElement("div", { className: "nesting-input-head" })
-	const nameElement = createElement("span", { className: "nesting-input-name" })
+	const headerBar = createHeaderBar(element, name)
 	const childrenContainer = createElement("div", { className: "children-container" })
 	const genericChildren = createElement("div", { className: "compound-input-generic-children" })
 	const specificChildren = createElement("div", { className: "compound-input-specific-children" })
 
-	nameElement.tabIndex = 0 // make it focusable
-	nameElement.textContent = name
 	element.classList.toggle("open", def.required ?? false) // collapse if optional
 	element.dataset.type = "compound"
 	element.dataset.required = (def.required ?? false)+""
@@ -140,7 +137,6 @@ function createCompoundInput(id: string, name: string, def: NBTCompound, evenChi
 
 	setCompoundChildren(id, def, genericChildren, def.children, specificChildren, evenChild)
 
-	headerBar.appendChild(nameElement)
 	element.appendChild(headerBar)
 	childrenContainer.appendChild(genericChildren)
 	childrenContainer.appendChild(specificChildren)
@@ -204,13 +200,10 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 
 function createListInput(id: string, name: string, def: NBTList, evenChild: boolean) {
 	const element = createElement("div", { id, className: "nesting-input" })
-	const headerBar = createElement("div", { className: "nesting-input-head" })
-	const nameElement = createElement("span", { className: "nesting-input-name" })
+	const headerBar = createHeaderBar(element, name)
 	const childrenContainer = createElement("div", { className: "children-container" })
 	const addButton = createHeaderBarButton("Add item", "add-item")
 
-	nameElement.tabIndex = 0 // make it focusable
-	nameElement.textContent = name
 	element.classList.toggle("open", def.required ?? false) // collapse if optional
 	element.dataset.type = "list"
 	element.dataset.required = (def.required ?? false)+""
@@ -226,7 +219,6 @@ function createListInput(id: string, name: string, def: NBTList, evenChild: bool
 
 	addButton.addEventListener("click", addItem)
 
-	headerBar.appendChild(nameElement)
 	headerBar.appendChild(addButton)
 	element.appendChild(headerBar)
 	element.appendChild(childrenContainer)
@@ -270,17 +262,14 @@ function createListItemInput(parentId: string, index: number, elementType: NBTLi
 
 function createTupleInput(id: string, name: string, def: NBTTuple, evenChild: boolean) {
 	const element = createElement("div", { id, className: "nesting-input" })
-	const headerBar = createElement("div", { className: "nesting-input-head" })
-	const nameElement = createElement("span", { className: "nesting-input-name" })
+	const headerBar = createHeaderBar(element, name)
 	const childrenContainer = createElement("div", { className: "children-container" })
 
 	console.log("Creating tuple input for", id, name, def)
-	nameElement.textContent = name
-	nameElement.tabIndex = 0 // make it focusable
+	
 	element.classList.toggle("open", def.required ?? false) // collapse if optional
 	element.dataset.type = "tuple"
 	element.classList.add(evenChild ? "even-child" : "odd-child")
-	headerBar.appendChild(nameElement)
 	element.appendChild(headerBar)
 
 	for (let i = 0; i < def.labels.length; i++) {
@@ -293,6 +282,20 @@ function createTupleInput(id: string, name: string, def: NBTTuple, evenChild: bo
 	element.appendChild(childrenContainer)
 
 	return element
+}
+
+function createHeaderBar(owner: HTMLElement, name: string) {
+	const headerBar = createElement("div", { className: "nesting-input-head" })
+	const nameElement = createElement("span", { className: "nesting-input-name" })
+
+	nameElement.textContent = name
+	nameElement.tabIndex = 0 // make it focusable
+	nameElement.addEventListener("click", () => {
+		owner.classList.toggle("open")
+	})
+
+	headerBar.appendChild(nameElement)
+	return headerBar
 }
 
 function createHeaderBarButton(ariaLabel: string, icon: string) {

@@ -105,12 +105,17 @@ form {
 	}
 }
 
+.nesting-input.open > .children-container {
+	display: flex;
+}
+
 .children-container {
+	display: none;
 	padding-inline: calc(2em * 0.6); /* indent by 2, 0.6 to convert height to */
 	padding-block: 5px;
+	flex-direction: column;
 	gap: 0.2em;
 
-	&,
 	> .compound-input-generic-children,
 	> .compound-input-specific-children {
 		display: flex;

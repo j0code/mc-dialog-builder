@@ -1,4 +1,4 @@
-import { BaseTextComponent, ButtonAction, InputControl, SingleOptionInputControl, SubmitAction, TextComponent, TextInputControl } from "./types.js"
+import { BaseTextComponent, BooleanInputControl, ButtonAction, InputControl, SingleOptionInputControl, SubmitAction, TextComponent, TextInputControl } from "./types.js"
 import { $, createElement, readFormData, resolveTextComponents, stringifyTextComponents } from "./util.js"
 import ValidationError from "./ValidationError.js"
 
@@ -231,14 +231,7 @@ function renderInputs(dialogData: any, element: HTMLElement) {
 		if (input.type == "minecraft:text") {
 			renderTextInput(input, inputElement, labelText)
 		} else if (input.type == "minecraft:boolean") {
-			const label = createElement("label", { className: "input-label" })
-			
-			inputField.value = (input.initial || "") + ""
-			renderTextComponents(label, labelText)
-			
-			inputField.type = "checkbox"
-			inputElement.appendChild(inputField)
-			inputElement.appendChild(label)
+			renderBooleanInput(input, inputElement, labelText)
 			
 		} else if (input.type == "minecraft:single_option") {
 			const cycleButton = createElement("button", { className: "input-single-option" })
@@ -298,4 +291,22 @@ function renderTextInput(input: TextInputControl, inputElement: HTMLDivElement, 
 		const height = input.multiline.height ?? 8 + max_lines * 9
 		inputField.style.setProperty("--height", `${height}px`)
 	}
+}
+
+function renderBooleanInput(input: BooleanInputControl, inputElement: HTMLDivElement, labelText: TextComponent[]) {
+	const label = createElement("label", { className: "input-label" })
+	const checkbox = createElement("div", { className: "input-checkbox" })
+	
+	let checked = input.initial ?? false
+	checkbox.textContent = checked ? "✔" : ""
+	checkbox.tabIndex = 0 // Make it focusable
+	renderTextComponents(label, labelText)
+
+	checkbox.addEventListener("click", () => {
+		checked = !checked
+		checkbox.textContent = checked ? "✔" : ""
+	})
+	
+	inputElement.appendChild(checkbox)
+	inputElement.appendChild(label)
 }

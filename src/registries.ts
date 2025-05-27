@@ -42,9 +42,9 @@ const click_event_type = new Map<string, NBTCompound>([
 ])
 
 const submit_method_type = new Map<string, NBTCompound>([
+	["minecraft:custom_form",      custom_form],
 	["minecraft:command_template", command_template],
 	["minecraft:custom_template",  custom_template],
-	["minecraft:custom_form",      custom_form],
 ])
 
 const input_control_type = new Map<string, NBTCompound>([

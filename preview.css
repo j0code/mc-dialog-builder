@@ -56,7 +56,6 @@
 }
 
 #preview button {
-	cursor: pointer;
 	background-color: #939393;
 	border: calc(var(--gui-scale) * 1px) solid black;
 	height: calc(var(--button-height) * var(--gui-scale));
@@ -104,7 +103,8 @@
 }
 
 .input-element > input,
-.input-element > textarea {
+.input-element > textarea,
+.input-element > .input-checkbox {
 	background-color: black;
 	border: calc(var(--gui-scale) * 1px) solid #a0a0a0;
 	border-radius: 0px;
@@ -112,7 +112,7 @@
 	height: calc(var(--button-height) * var(--gui-scale));
 	font-size: var(--font-size);
 
-	&:active, &:focus-visible {
+	&:active, &:focus, &:focus-visible {
 		border-color: white;
 		outline: none;
 	}
@@ -129,8 +129,13 @@
 	padding: 0px 3px;
 }
 
-.input-element > input[type="checkbox"] {
+.input-element > .input-checkbox {
 	width: calc(var(--button-height) * var(--gui-scale));
+	display: flex;
+    align-items: center;
+    justify-content: center;
+	font-size: calc(15px * var(--gui-scale));
+	user-select: none;
 }
 
 .input-element > textarea {

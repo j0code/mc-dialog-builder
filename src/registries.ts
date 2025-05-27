@@ -17,6 +17,11 @@ import boolean from "./data/input_control_type/boolean.js"
 import single_option from "./data/input_control_type/single_option.js"
 import number_range from "./data/input_control_type/number_range.js"
 import multi_action_input_form from "./data/dialog_type/multi_action_input_form.js"
+import open_url from "./data/click_event_type/open_url.js"
+import suggest_command from "./data/click_event_type/suggest_command.js"
+import copy_to_clipboard from "./data/click_event_type/copy_to_clipboard.js"
+import show_dialog from "./data/click_event_type/show_dialog.js"
+import custom from "./data/click_event_type/custom.js"
 
 const dialog_body_type = new Map<string, NBTCompound>([
 	["minecraft:plain_message", plain_message],
@@ -38,7 +43,12 @@ const text_component_type = new Map<string, NBTCompound>([
 ])
 
 const click_event_type = new Map<string, NBTCompound>([
-	["run_command", run_command]
+	["open_url",          open_url],
+	["run_command",       run_command],
+	["suggest_command",   suggest_command],
+	["copy_to_clipboard", copy_to_clipboard],
+	["show_dialog",       show_dialog],
+	["custom",            custom],
 ])
 
 const submit_method_type = new Map<string, NBTCompound>([

@@ -16,7 +16,7 @@ Open the GitHub pages or clone the repo and open index.html using a local webser
 
 - Use the UI to add dialog nodes, options, and responses.
 - Preview your dialog tree as you build.
-- Click "Export" to download the dialog as a JSON file.
+- Click "Download JSON" to download the dialog as a JSON file.
 
 ## Contributing
 

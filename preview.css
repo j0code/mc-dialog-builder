@@ -91,14 +91,24 @@
 	flex-wrap: wrap;
 }
 
+#inputs-container {
+	display: flex;
+	flex-direction: column;
+	gap: calc(var(--gui-scale) * 10px);
+	justify-content: center;
+	align-items: center;
+}
+
 .input-element {
 	display: flex;
 	flex-direction: row;
 	justify-content: center;
 	align-items: center;
+	gap: calc(var(--gui-scale) * 4px);
 }
 
-.input-element:has(> [type="text"]) {
+.input-element:has(> [type="text"]),
+.input-element:has(> textarea) {
 	flex-direction: column;
 }
 
@@ -130,7 +140,7 @@
 .input-element > textarea {
 	width: calc(var(--width) * var(--gui-scale));
 	text-shadow: var(--text-shadow);
-	padding: 0px 3px;
+	padding: 4px 3px;
 }
 
 .input-element > .input-checkbox {

@@ -74,7 +74,11 @@ function createBody(dialogData: any) {
 		element.appendChild(bodyElement)
 	}
 
-	if (dialogData.type == "minecraft:multi_action") {
+	if (["minecraft:simple_input_form", "minecraft:multi_action_input_form"].includes(dialogData.type)) {
+		renderInputs(dialogData, element)
+	}
+
+	if (["minecraft:minecraft:multi_action", "minecraft:multi_action_input_form"].includes(dialogData.type)) {
 		const actionGrid = createElement("div", { id: "action-grid" })
 		const columns = dialogData.columns || 2
 
@@ -92,8 +96,6 @@ function createBody(dialogData: any) {
 		}
 
 		element.appendChild(actionGrid)
-	} else if (["minecraft:simple_input_form"].includes(dialogData.type)) {
-		renderInputs(dialogData, element)
 	}
 
 	return element
@@ -252,10 +254,10 @@ function renderInputs(dialogData: any, element: HTMLElement) {
 			cycleButton.style.setProperty("--width", `${input.width || 200}px`)
 
 			function updateButtonLabel(input: SingleOptionInputControl) {
-				const option = options[index] ?? { id: "unknown", display: [{ type: "text", text: "Unknown Option" }] }
+				const option = options[index] ?? { id: "unknown", display: [{ type: "text", text: "" }] }
 				const optionText = option.display ?? []
 				if (optionText.length == 0) {
-					optionText.push({ type: "text", text: option.id || "Unknown Option" })
+					optionText.push({ type: "text", text: option.id || "" })
 				}
 
 				cycleButton.innerHTML = "" // Clear previous content

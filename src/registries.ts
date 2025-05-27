@@ -16,6 +16,7 @@ import { NBTCompound, RegistryKey } from "./types.js"
 import boolean from "./data/input_control_type/boolean.js"
 import single_option from "./data/input_control_type/single_option.js"
 import number_range from "./data/input_control_type/number_range.js"
+import multi_action_input_form from "./data/dialog_type/multi_action_input_form.js"
 
 const dialog_body_type = new Map<string, NBTCompound>([
 	["minecraft:plain_message", plain_message],
@@ -28,7 +29,8 @@ const dialog_type = new Map<string, NBTCompound>([
 	["minecraft:multi_action", multi_action],
 	["minecraft:server_links", server_links],
 	["minecraft:dialog_list",  dialog_list],
-	["minecraft:simple_input_form", simple_input_form]
+	["minecraft:simple_input_form", simple_input_form],
+	["minecraft:multi_action_input_form", multi_action_input_form]
 ])
 
 const text_component_type = new Map<string, NBTCompound>([

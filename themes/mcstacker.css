@@ -12,7 +12,7 @@
 	--odd-bg: #202020;
 	--frame-color: #888;
 
-	details {
+	.nesting-input {
 		background-color: rgb(var(--test), var(--test), var(--test));
 
 		> .children-container {

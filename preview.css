@@ -21,6 +21,10 @@
 	font-size: var(--font-size);
 	font-family: sans-serif;
 	text-shadow: var(--text-shadow);
+
+	&.error {
+		background-color: #b03030;
+	}
 }
 
 #preview-header {

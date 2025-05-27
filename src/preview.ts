@@ -34,12 +34,18 @@ const submitButton: Omit<SubmitAction, "on_submit"> = {
 export function previewDialog() {
 	const form = $("#mc-dialog-builder", "form")
 	const preview = $("#preview", "div")
-	const dialogData = readFormData(form)
+	let dialogData = readFormData(form)
 	preview.innerHTML = "" // Clear previous preview content
 
 	if (dialogData instanceof ValidationError) {
-		// TODO: Render Error info
-		return
+		preview.classList.add("error")
+		dialogData = {
+			type: "minecraft:notice",
+			title: "Validation Error",
+			body: [{ type: "minecraft:plain_message", contents: [{ type: "text", text: dialogData.message }] }]
+		}
+	} else {
+		preview.classList.remove("error")
 	}
 
 	console.log("Dialog Data:", dialogData)

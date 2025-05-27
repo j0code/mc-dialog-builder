@@ -1,6 +1,7 @@
 import { createForm } from "./builder.js"
 import { createControls } from "./controls.js"
 import { createDraggableBorder } from "./draggable_border.js"
+import { previewDialog } from "./preview.js"
 import { createElement } from "./util.js"
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -18,4 +19,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	const preview = createElement("div", { id: "preview" })
 	document.body.appendChild(preview)
+	previewDialog()
 })

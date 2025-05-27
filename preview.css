@@ -1,0 +1,116 @@
+:root {
+	--button-height: 30px;
+}
+
+#preview {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	overflow: auto;
+	background-color: lightblue;
+	white-space: pre;
+	flex-wrap: wrap;
+}
+
+#preview-header {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	padding: 20px;
+}
+
+#preview-title {
+	font-size: 1.5em;
+	font-weight: bold;
+	text-align: center;
+}
+
+#preview-body {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	flex: 1 1 auto;
+	overflow: auto;
+	padding: 10px;
+	/* background-color: tomato; */
+	border-block: 1px dashed gray;
+}
+
+#preview-footer {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	padding: 20px;
+	/* background-color: yellow; */
+	gap: 10px;
+}
+
+#preview button {
+	cursor: pointer;
+	background-color: #939393;
+	border: 2px solid black;
+	height: var(--button-height);
+
+	&:hover, &:active, &:focus-visible {
+		border-color: white;
+		outline: none;
+	}
+}
+
+#action-grid {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	justify-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+.action-grid-row {
+	display: flex;
+	flex-direction: row;
+	gap: 3px;
+	justify-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+.input-element {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+}
+
+.input-element:has(> [type="text"]) {
+	flex-direction: column;
+}
+
+.input-label {
+	justify-content: center;
+}
+
+.input-element > input[type="text"] {
+	background-color: black;
+	border: 2px solid #a0a0a0;
+	color: white;
+	height: var(--button-height);
+
+	&:hover, &:active, &:focus-within {
+		border-color: white;
+		outline: none;
+	}
+}
+
+.input-element > input[type="checkbox"] {
+	background-color: black;
+	border: 2px solid #a0a0a0;
+	border-radius: 0px;
+	color: white;
+	width: var(--button-height);
+	height: var(--button-height);
+
+	&:hover, &:active, &:focus-visible {
+		border-color: white;
+		outline: none;
+	}
+}

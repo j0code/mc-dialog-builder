@@ -1,6 +1,8 @@
 import { previewDialog } from "./preview.js"
-import { createElement, readFormData } from "./util.js"
+import { $, createElement, readFormData } from "./util.js"
 import ValidationError from "./ValidationError.js"
+
+const themes = ["default", "light", "dark", "mcstacker"]
 
 export function createControls(form: HTMLFormElement): HTMLDivElement {
 	const controls = createElement("div", { id: "controls" })
@@ -57,10 +59,42 @@ export function createControls(form: HTMLFormElement): HTMLDivElement {
 	autoReloadCheckbox.checked = true
 	autoReloadLabel.appendChild(autoReloadCheckbox)
 
+	const highlightRequiredLabel = createElement("label", { id: "highlight-required-label", textContent: "Highlight required" })
+	const highlightRequiredCheckbox = createElement("input", { id: "highlight-required-checkbox" })
+	highlightRequiredCheckbox.type = "checkbox"
+	highlightRequiredCheckbox.checked = false
+	highlightRequiredLabel.appendChild(highlightRequiredCheckbox)
+
+	$("html").dataset.highlightRequired = "false"
+	highlightRequiredCheckbox.addEventListener("change", () => {
+		$("html").dataset.highlightRequired = highlightRequiredCheckbox.checked ? "true" : "false"
+	})
+
+	const themeLabel = createElement("label", { id: "theme-label", textContent: "Theme" })
+	const themeSelect = createElement("select", { id: "theme-select" })
+
+	themes.forEach(theme => {
+		const option = createElement("option", { value: theme, textContent: theme })
+		if (theme === "default") {
+			option.selected = true
+		}
+		themeSelect.appendChild(option)
+	})
+
+	$("html").dataset.theme = "default"
+	themeSelect.addEventListener("change", () => {
+		const selectedTheme = themeSelect.value
+		$("html").dataset.theme = selectedTheme
+	})
+
+	themeLabel.appendChild(themeSelect)
+
 	controls.appendChild(previewButton)
 	controls.appendChild(copyButton)
 	controls.appendChild(downloadButton)
 	controls.appendChild(autoReloadLabel)
+	controls.appendChild(highlightRequiredLabel)
+	controls.appendChild(themeLabel)
 
 	return controls
 }

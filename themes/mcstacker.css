@@ -1,0 +1,31 @@
+:root[data-theme="mcstacker"] {
+	color-scheme: dark;
+	--controls-bg-color: #303033;
+	--controls-text-color: #f19216;
+	--builder-bg-color: #111;
+	--builder-text-color: #f19216;
+	--builder-input-bg-color: #121212;
+	--builder-input-text-color: #f19216;
+	--builder-input-text-color: #888;
+
+	--even-bg: #151515;
+	--odd-bg: #202020;
+	--frame-color: #888;
+
+	details {
+		background-color: rgb(var(--test), var(--test), var(--test));
+
+		> .children-container {
+			border: 2px solid var(--frame-color);
+			border-radius: 10px;
+		}
+		
+		&.even-child > .children-container {
+			background-color: var(--even-bg);
+		}
+
+		&.odd-child > .children-container {
+			background-color: var(--odd-bg);
+		}
+	}
+}

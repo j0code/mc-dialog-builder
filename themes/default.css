@@ -1,0 +1,18 @@
+:root {
+	color-scheme: light dark;
+	--controls-bg-color: light-dark(#d0d0d2, #303033);
+	--controls-text-color: light-dark(#141410, #e4e4e0);
+	--builder-bg-color: light-dark(#e0e0e2, #404044);
+	--builder-text-color: light-dark(#141410, #e4e4e0);
+	--builder-input-bg-color: field;
+	--builder-input-text-color: var(--builder-text-color);
+	--builder-input-border-color: light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
+}
+
+:root[data-theme="light"] {
+	color-scheme: light;
+}
+
+:root[theme="dark"] {
+	color-scheme: dark;
+}

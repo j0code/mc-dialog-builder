@@ -36,7 +36,7 @@ export function createForm() {
 			can_close_with_escape: { type: "boolean" }
 		},
 		required: true
-	})
+	}, true)
 
 	
 
@@ -110,9 +110,10 @@ function createBooleanInput(id: string, def: NBTBoolean) {
 
 }
 
-function createCompoundInput(id: string, name: string, def: NBTCompound) {
+function createCompoundInput(id: string, name: string, def: NBTCompound, evenChild: boolean) {
 	const element = createElement("details", { id, className: "compound-input" })
 	const summaryElement = createElement("summary", { className: "compound-input-name" })
+	const childrenContainer = createElement("div", { className: "children-container" })
 	const genericChildren = createElement("div", { className: "compound-input-generic-children" })
 	const specificChildren = createElement("div", { className: "compound-input-specific-children" })
 
@@ -120,29 +121,31 @@ function createCompoundInput(id: string, name: string, def: NBTCompound) {
 	element.open = def.required ?? false // collapse if optional
 	element.dataset.type = "compound"
 	element.dataset.required = (def.required ?? false)+""
+	element.classList.add(evenChild ? "even-child" : "odd-child")
 
 	// console.log("!§", id, def.children, def.required)
 	if ("type" in def.children && def.children.type.type == "select" && def.children.type.required) {
 		const registry = getRegistry(def.children.type.registry)
 		const firstEntry = registry.values().next().value
-		if (firstEntry) setCompoundChildren(id, def, specificChildren, firstEntry.children, specificChildren)
+		if (firstEntry) setCompoundChildren(id, def, specificChildren, firstEntry.children, specificChildren, evenChild)
 		// console.log(id, firstEntry)
 	} else if ("action" in def.children && def.children.action.type === "select" && def.children.action.required) {
 		const registry = getRegistry(def.children.action.registry)
 		const firstEntry = registry.values().next().value
-		if (firstEntry) setCompoundChildren(id, def, specificChildren, firstEntry.children, specificChildren)
+		if (firstEntry) setCompoundChildren(id, def, specificChildren, firstEntry.children, specificChildren, evenChild)
 		// console.log(id, firstEntry)
 	}
 
-	setCompoundChildren(id, def, genericChildren, def.children, specificChildren)
+	setCompoundChildren(id, def, genericChildren, def.children, specificChildren, evenChild)
 
 	element.appendChild(summaryElement)
-	element.appendChild(genericChildren)
-	element.appendChild(specificChildren)
+	childrenContainer.appendChild(genericChildren)
+	childrenContainer.appendChild(specificChildren)
+	element.appendChild(childrenContainer)
 	return element
 }
 
-function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: HTMLDivElement, children: Record<string, NBTValue>, specificChildrenElement: HTMLDivElement) {
+function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: HTMLDivElement, children: Record<string, NBTValue>, specificChildrenElement: HTMLDivElement, evenChild: boolean) {
 	for (let [key, childDef] of Object.entries(children)) {
 		let inputElement: HTMLElement
 
@@ -162,7 +165,7 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 					const entry = registry.get(selectElement.value)
 
 					specificChildrenElement.innerHTML = "" // Clear previous specific children
-					if (entry) setCompoundChildren(parentId, parentDef, specificChildrenElement, entry?.children ?? {}, specificChildrenElement)
+					if (entry) setCompoundChildren(parentId, parentDef, specificChildrenElement, entry?.children ?? {}, specificChildrenElement, evenChild)
 				})
 			}
 		} else if (childDef.type === "string") {
@@ -172,11 +175,11 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 		} else if (childDef.type === "boolean") {
 			inputElement = createBooleanInput(`${parentId}-${key}`, childDef)
 		} else if (childDef.type == "compound") {
-			inputElement = createCompoundInput(`${parentId}-${key}`, key, childDef)
+			inputElement = createCompoundInput(`${parentId}-${key}`, key, childDef, !evenChild)
 		} else if (childDef.type == "list") {
-			inputElement = createListInput(`${parentId}-${key}`, key, childDef)
+			inputElement = createListInput(`${parentId}-${key}`, key, childDef, !evenChild)
 		} else if (childDef.type == "tuple") {
-			inputElement = createTupleInput(`${parentId}-${key}`, key, childDef)
+			inputElement = createTupleInput(`${parentId}-${key}`, key, childDef, !evenChild)
 		} else {
 			throw new Error(`Unsupported type: ${childDef.type}`)
 		}
@@ -196,9 +199,10 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 	}
 }
 
-function createListInput(id: string, name: string, def: NBTList) {
+function createListInput(id: string, name: string, def: NBTList, evenChild: boolean) {
 	const element = createElement("details", { id, className: "list-input" })
 	const summaryElement = createElement("summary", { className: "list-input-name" })
+	const childrenContainer = createElement("div", { className: "children-container" })
 	const addButton = createElement("button", { className: "add-button" })
 	addButton.textContent = "Add Item"
 	addButton.type = "button"
@@ -206,24 +210,26 @@ function createListInput(id: string, name: string, def: NBTList) {
 	element.open = def.required ?? false // collapse if optional
 	element.dataset.type = "list"
 	element.dataset.required = (def.required ?? false)+""
+	element.classList.add(evenChild ? "even-child" : "odd-child")
 
 	function addItem() {
-		const index = element.childElementCount - 2 // -2 to skip the summary and add button
+		const index = childrenContainer.childElementCount
 		let elementType = structuredClone(def.elementType)
 		if (index == 0 && def.required) elementType.required = true
-		const itemElement = createListItemInput(id, index, elementType)
-		element.appendChild(itemElement)
+		const itemElement = createListItemInput(id, index, elementType, evenChild)
+		childrenContainer.appendChild(itemElement)
 	}
 
 	addButton.addEventListener("click", addItem)
 
 	element.appendChild(summaryElement)
+	element.appendChild(childrenContainer)
 	element.appendChild(addButton)
 	if (def.required) addItem()
 	return element
 }
 
-function createListItemInput(parentId: string, index: number, elementType: NBTList["elementType"], labelText: string = index+"") {
+function createListItemInput(parentId: string, index: number, elementType: NBTList["elementType"], evenChild: boolean, labelText: string = index+"") {
 	let inputElement: HTMLInputElement | HTMLSelectElement | HTMLDetailsElement
 
 	if (elementType.type in specialTypeMapping) {
@@ -239,7 +245,7 @@ function createListItemInput(parentId: string, index: number, elementType: NBTLi
 	} else if (elementType.type === "boolean") {
 		inputElement = createBooleanInput(`${parentId}-${index}`, elementType)
 	} else if (elementType.type === "compound") {
-		inputElement = createCompoundInput(`${parentId}-${index}`, index+"", elementType)
+		inputElement = createCompoundInput(`${parentId}-${index}`, index+"", elementType, !evenChild)
 		inputElement.open = true // open by default since it has just been created
 	} else {
 		throw new Error(`Unsupported list item type: ${elementType.type}`)
@@ -257,22 +263,26 @@ function createListItemInput(parentId: string, index: number, elementType: NBTLi
 	return label
 }
 
-function createTupleInput(id: string, name: string, def: NBTTuple) {
+function createTupleInput(id: string, name: string, def: NBTTuple, evenChild: boolean) {
 	const element = createElement("details", { id, className: "tuple-input" })
 	const summaryElement = createElement("summary", { className: "tuple-input-name" })
+	const childrenContainer = createElement("div", { className: "children-container" })
 
 	console.log("Creating tuple input for", id, name, def)
 	summaryElement.textContent = name
 	element.open = true // Open by default
 	element.dataset.type = "tuple"
+	element.classList.add(evenChild ? "even-child" : "odd-child")
 	element.appendChild(summaryElement)
 
 	for (let i = 0; i < def.labels.length; i++) {
 		const label = def.labels[i]
-		const inputElement = createListItemInput(id, i, def.elementType, label)
+		const inputElement = createListItemInput(id, i, def.elementType, evenChild, label)
 
-		element.appendChild(inputElement)
+		childrenContainer.appendChild(inputElement)
 	}
+
+	element.appendChild(childrenContainer)
 
 	return element
 }

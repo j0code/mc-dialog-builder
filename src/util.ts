@@ -30,14 +30,15 @@ export function readFormData(form: HTMLFormElement): Record<string, any> | Valid
 	try {
 		return readFormCompoundData(dialog)
 	} catch (e) {
-		if (!(e instanceof ValidationError)) throw `bro, ValidationErrors only! (${e})`
+		if (!(e instanceof ValidationError)) throw e
 		console.error("ValidationError:", e.message)
 		return e
 	}
 }
 
 export function readFormCompoundData(form: HTMLDetailsElement): Record<string, any> {
-	const elements = Array.from(form.children[1].children).concat(Array.from(form.children[2].children))
+	const childrenContainer = form.children[1]
+	const elements = Array.from(childrenContainer.children[0].children).concat(Array.from(childrenContainer.children[1].children))
 
 	return readFormElements(elements) || {}
 }
@@ -77,8 +78,9 @@ export function readFormElements(elements: Element[], array: boolean = false): R
 				}
 				data[element.dataset.key!] = readFormCompoundData(element)
 			} else { // list or tuple
-				const children = Array.from(element.children)
-				if (element.dataset.required == "false" && children.length <= 2) continue // 2 because summary and add button are counted
+				const childrenContainer = element.children[1]
+				const children = Array.from(childrenContainer.children)
+				if (element.dataset.required == "false" && children.length == 0) continue
 				data[element.dataset.key!] = readFormElements(children, true) ?? []
 			}
 		}

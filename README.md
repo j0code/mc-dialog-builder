@@ -10,7 +10,7 @@ A simple Minecraft Dialog builder
 
 ## Getting Started
 
-Open the GitHub pages or clone the repo and open index.html using a local webserver (browsers block js modules on file:///).
+Open the [GitHub Page](https://j0code.github.io/mc-dialog-builder/) or clone the repo and open index.html using a local webserver (browsers block js modules on file:///).
 
 ## Usage
 

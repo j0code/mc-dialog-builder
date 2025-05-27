@@ -1,4 +1,4 @@
-import { BaseTextComponent, BooleanInputControl, ButtonAction, InputControl, SingleOptionInputControl, SubmitAction, TextComponent, TextInputControl } from "./types.js"
+import { BaseTextComponent, BooleanInputControl, ButtonAction, InputControl, SingleOptionInputControl, SubmitAction, TextComponent, TextInputControl, TextTextComponent } from "./types.js"
 import { $, createElement, readFormData, resolveTextComponents, stringifyTextComponents } from "./util.js"
 import ValidationError from "./ValidationError.js"
 
@@ -69,7 +69,10 @@ function createBody(dialogData: any) {
 	for (const elem of dialogData.body || []) {
 		const bodyElement = createElement("p", { className: "preview-body-element" })
 
-		renderTextComponents(bodyElement, elem.contents || [])
+		if (elem.type == "minecraft:plain_message") {
+			console.log("Rendering plain message:", elem)
+			renderTextComponents(bodyElement, elem.contents || [])
+		}
 
 		element.appendChild(bodyElement)
 	}
@@ -140,7 +143,7 @@ function createFooter(dialogData: any) {
 	return element
 }
 
-function renderTextComponent(component: TextComponent, parent: BaseTextComponent): HTMLSpanElement {
+function renderTextComponent(component: TextTextComponent, parent: BaseTextComponent): HTMLSpanElement {
 	const element = createElement("span", { className: "text-component" })
 	const shadow = component.shadow_color || [0, 0, 0, 1] // default shadow color if not provided   (TODO: use darkened color)
 	const shadowCss = `${shadow[0] * 255} ${shadow[1] * 255} ${shadow[2] * 255} / ${shadow[3] * 100}%`
@@ -190,9 +193,12 @@ function renderTextComponents(element: HTMLElement, components: TextComponent | 
 	if (!Array.isArray(components)) {
 		components = [components]
 	}
-	const firstComp: BaseTextComponent = components[0] ?? defaultTextComponent
-	for (const component of components) {
-		element.appendChild(renderTextComponent(component as TextComponent, firstComp))
+	const resolvedComponents = resolveTextComponents(components) as TextTextComponent[]
+
+	const firstComp: BaseTextComponent = resolvedComponents[0] ?? defaultTextComponent
+	for (const component of resolvedComponents) {
+		console.log("rendering", component)
+		element.appendChild(renderTextComponent(component, firstComp))
 	}
 }
 

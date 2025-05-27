@@ -93,19 +93,67 @@ export function readFormElements(elements: Element[], array: boolean = false): R
 	return data
 }
 
-export function resolveTextComponent(component: TextComponent): TextTextComponent {
+function resolveTextComponent(component: TextComponent): TextTextComponent | TextTextComponent[] { // TODO: keep formatting
 	// console.log("resolveTextComponent", component)
 	if (component.type == "text") {
 		return component
+	} else if (component.type == "translatable") {
+		return { type: "text", text: component.translate }
+	} else if (component.type == "score") {
+		return { type: "text", text: "" }
+	} else if (component.type == "selector") {
+		const names = ["Alex", "Steve"]
+		const separator: TextComponent | TextComponent[] = component.separator ?? { type: "text", text: ", ", color: "gray" }
+		const nameComponents = names.map(name => createPlayerNameComponent(name))
+		return resolveTextComponents(textComponentJoin(nameComponents, separator))
+	} else if (component.type == "keybind") {
+		return { type: "text", text: component.keybind }
+	}else if (component.type == "nbt") {
+		return { type: "text", text: component.nbt }
 	}
 	return { type: "text", text: "ERROR! Unknown TextComponent type!" }
 }
 
 export function resolveTextComponents(components: TextComponent | TextComponent[]): TextTextComponent[] {
-	if (!Array.isArray(components)) return [resolveTextComponent(components)]
-	return components.map(resolveTextComponent)
+	let comps: TextTextComponent[] = []
+	if (!Array.isArray(components)) {
+		components = [components]
+	}
+
+	components.forEach(comp => {
+		const resolved = resolveTextComponent(comp)
+		comps = comps.concat(resolved)
+	})
+
+	return comps
 }
 
 export function stringifyTextComponents(components: TextComponent | TextComponent[]): string {
 	return resolveTextComponents(components).map(comp => comp.text).join("")
+}
+
+function createPlayerNameComponent(name: string): TextTextComponent { // TODO: add tooltip
+	/*const uuid = crypto.randomUUID()
+	const tooltip: TextTextComponent = {
+		type: "text",
+		text: `${name}\nType: Player\n${uuid}`,
+	}*/
+
+	return {
+		type: "text",
+		text: name
+	}
+}
+
+function textComponentJoin(components: TextComponent[], separator: TextComponent | TextComponent[]): TextComponent[] {
+	if (components.length == 0) return [{ type: "text", text: "" }]
+	if (components.length == 1) return [components[0]]
+
+	let list: TextComponent[] = []
+	for (let i = 0; i < components.length; i++) {
+		if (i > 0) list = list.concat(separator)
+		list.push(components[i])
+	}
+
+	return list
 }

@@ -98,7 +98,44 @@ export type TextTextComponent = BaseTextComponent & {
 	text: string,
 }
 
-export type TextComponent = TextTextComponent
+export type TranslatableTextComponent = BaseTextComponent & {
+	type: "translatable",
+	translate: string,
+	fallback?: string,
+	with?: TextComponent[]
+}
+
+export type ScoreTextComponent = BaseTextComponent & {
+	type: "score",
+	score: {
+		name: string,
+		objective: string
+	}
+}
+
+export type SelectorTextComponent = BaseTextComponent & {
+	type: "selector",
+	selector: string,
+	separator?: TextComponent[]
+}
+
+export type KeybindTextComponent = BaseTextComponent & {
+	type: "keybind",
+	keybind: string
+}
+
+export type DataTextComponent = BaseTextComponent & {
+	type: "nbt",
+	source?: "entity" | "block" | "storage",
+	nbt: string,
+	interpret?: boolean,
+	separator?: TextComponent[],
+	block?: string,
+	entity?: string,
+	storage?: string
+}
+
+export type TextComponent = TextTextComponent | TranslatableTextComponent | ScoreTextComponent | SelectorTextComponent | KeybindTextComponent | DataTextComponent
 
 export type ButtonAction = {
 	label: TextComponent[],

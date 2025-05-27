@@ -22,6 +22,11 @@ import suggest_command from "./data/click_event_type/suggest_command.js"
 import copy_to_clipboard from "./data/click_event_type/copy_to_clipboard.js"
 import show_dialog from "./data/click_event_type/show_dialog.js"
 import custom from "./data/click_event_type/custom.js"
+import translatable from "./data/text_component_type/translatable.js"
+import score from "./data/text_component_type/score.js"
+import selector from "./data/text_component_type/selector.js"
+import keybind from "./data/text_component_type/keybind.js"
+import nbt from "./data/text_component_type/nbt.js"
 
 const dialog_body_type = new Map<string, NBTCompound>([
 	["minecraft:plain_message", plain_message],
@@ -39,7 +44,12 @@ const dialog_type = new Map<string, NBTCompound>([
 ])
 
 const text_component_type = new Map<string, NBTCompound>([
-	["text", text]
+	["text",         text],
+	["translatable", translatable],
+	["score",        score],
+	["selector",     selector],
+	["keybind",      keybind],
+	["nbt",          nbt],
 ])
 
 const click_event_type = new Map<string, NBTCompound>([

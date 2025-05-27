@@ -25,7 +25,7 @@ export function $<K extends keyof HTMLElementTagNameMap>(query: string, tagName?
 }
 
 export function readFormData(form: HTMLFormElement): Record<string, any> | ValidationError {
-	const dialog = form.children[0] as HTMLDetailsElement
+	const dialog = form.children[0] as HTMLDivElement
 	
 	try {
 		return readFormCompoundData(dialog)
@@ -36,7 +36,7 @@ export function readFormData(form: HTMLFormElement): Record<string, any> | Valid
 	}
 }
 
-export function readFormCompoundData(form: HTMLDetailsElement): Record<string, any> {
+export function readFormCompoundData(form: HTMLDivElement): Record<string, any> {
 	const childrenContainer = form.children[1]
 	const elements = Array.from(childrenContainer.children[0].children).concat(Array.from(childrenContainer.children[1].children))
 
@@ -66,8 +66,8 @@ export function readFormElements(elements: Element[], array: boolean = false): R
 				
 				if (value || input.required) data[input.dataset.key!] = value || ""
 			}
-		} else if (element instanceof HTMLDetailsElement) { // compound, list, tuple
-			if (element.classList.contains("compound-input")) { // compound
+		} else if (element instanceof HTMLDivElement && element.dataset.type) { // compound, list, tuple
+			if (element.dataset.type == "compound") { // compound
 				const compoundData = readFormCompoundData(element)
 				if (Object.keys(compoundData).length == 0) {
 					if (element.dataset.required == "true") {

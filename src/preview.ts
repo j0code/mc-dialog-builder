@@ -1,4 +1,4 @@
-import { BaseTextComponent, BooleanInputControl, ButtonAction, InputControl, SingleOptionInputControl, SubmitAction, TextComponent, TextInputControl, TextTextComponent } from "./types.js"
+import { BaseTextComponent, BooleanInputControl, TextClickEvent, DialogAction, InputControl, SingleOptionInputControl, TextClickAction, TextComponent, TextInputControl, TextTextComponent, DialogActionType } from "./types.js"
 import { $, createElement, readFormData, resolveTextComponents, stringifyTextComponents } from "./util.js"
 import ValidationError from "./ValidationError.js"
 
@@ -16,18 +16,13 @@ const defaultTextComponent: Required<BaseTextComponent> = {
 	shadow_color: [0.75, 0.75, 0.75, 0.25]
 }
 
-const cancelButton: Omit<ButtonAction, "on_click"> = {
+const cancelButton: Omit<DialogAction, "action"> = {
 	label: [{ type: "text", text: "Cancel" }],
 	width: DEFAULT_BUTTON_WIDTH
 }
 
-const backButton: Omit<ButtonAction, "on_click"> = {
+const backButton: Omit<DialogAction, "action"> = {
 	label: [{ type: "text", text: "Back" }],
-	width: DEFAULT_BUTTON_WIDTH
-}
-
-const submitButton: Omit<SubmitAction, "on_submit"> = {
-	label: [{ type: "text", text: "Submit" }],
 	width: DEFAULT_BUTTON_WIDTH
 }
 
@@ -91,7 +86,7 @@ function createBody(dialogData: any) {
 		const actionGrid = createElement("div", { id: "action-grid" })
 		const columns = dialogData.columns || 2
 
-		const actions: ButtonAction[] = dialogData.actions || []
+		const actions: DialogAction[] = dialogData.actions || []
 		let row = createElement("div", { className: "action-grid-row" })
 		for (const action of actions) {
 			if (row.children.length >= columns) {
@@ -114,15 +109,15 @@ function createFooter(dialogData: any) {
 	const element = createElement("div", { id: "preview-footer" })
 
 	if (dialogData.type == "minecraft:notice") {
-		const action: ButtonAction = dialogData.action ?? { label: { type: "text", text: "Ok" }, width: DEFAULT_BUTTON_WIDTH }
+		const action: DialogAction = dialogData.action ?? { label: { type: "text", text: "Ok" }, width: DEFAULT_BUTTON_WIDTH }
 		if (!action.label || action.label.length == 0) action.label = [{ type: "text", text: "Ok" }]
 
 		const closeButton = renderButton(action)
 
 		element.appendChild(closeButton)
 	} else if (dialogData.type == "minecraft:confirmation") {
-		const yesAction: ButtonAction = dialogData.yes ?? { label: { type: "text", text: "Yes" }, width: DEFAULT_BUTTON_WIDTH }
-		const noAction:  ButtonAction = dialogData.no  ?? { label: { type: "text", text: "No"  }, width: DEFAULT_BUTTON_WIDTH }
+		const yesAction: DialogAction = dialogData.yes ?? { label: { type: "text", text: "Yes" }, width: DEFAULT_BUTTON_WIDTH }
+		const noAction:  DialogAction = dialogData.no  ?? { label: { type: "text", text: "No"  }, width: DEFAULT_BUTTON_WIDTH }
 		if (yesAction.label.length == 0) yesAction.label = [{ type: "text", text: "Yes" }]
 		if (noAction.label.length == 0)  noAction.label  = [{ type: "text", text: "No" }]
 
@@ -131,15 +126,8 @@ function createFooter(dialogData: any) {
 
 		element.appendChild(yesButton)
 		element.appendChild(noButton)
-	} else if (["minecraft:multi_action", "minecraft:server_links", "minecraft:dialog_list"].includes(dialogData.type)) {
-		const hasExitAction = Boolean(dialogData.on_cancel)
-		const action: ButtonAction = { ...(hasExitAction ? cancelButton : backButton), on_click: dialogData.on_cancel }
-
-		const closeButton = renderButton(action)
-
-		element.appendChild(closeButton)
-	} else if (["minecraft:simple_input_form"].includes(dialogData.type)) {
-		const action: SubmitAction = { ...submitButton, on_submit: dialogData.action?.on_submit || { type: "minecraft:custom_form", id: "" } }
+	} else if (["minecraft:multi_action", "minecraft:server_links", "minecraft:dialog_list"].includes(dialogData.type) && dialogData.exit_action) {
+		const action: DialogAction = dialogData.exit_action
 
 		const closeButton = renderButton(action)
 
@@ -169,10 +157,10 @@ function renderTextComponent(component: TextTextComponent, parent: BaseTextCompo
 	return element
 }
 
-function renderButton(action: ButtonAction | SubmitAction): HTMLButtonElement {
+function renderButton(action: DialogAction): HTMLButtonElement {
 	const label = resolveTextComponents(action.label)
 	const button = createElement("button", { className: "dialog-button" })
-	button.style.setProperty("--width", `${action.width}px`) 
+	button.style.setProperty("--width", `${action.width || 150}px`) 
 	console.log("Rendering button:", action)
 
 	if (action.tooltip) {
@@ -185,11 +173,7 @@ function renderButton(action: ButtonAction | SubmitAction): HTMLButtonElement {
 		// @ts-expect-error
 		console.log(`Button [${stringifyTextComponents(label)}] clicked:`, action.on_click ?? action.on_submit)
 
-		if ("on_submit" in action) {
-			handleSubmit(action)
-		} else if ("on_click" in action) {
-			handleClick(action)
-		}
+		if (action.action) handleDialogClick(action.action)
 	})
 
 	return button
@@ -208,22 +192,24 @@ function renderTextComponents(element: HTMLElement, components: TextComponent | 
 	}
 }
 
-function handleClick(action: ButtonAction) {
+function handleTextClick(action: TextClickAction) {
 	if (action.on_click.action == "run_command") {
-		console.log(`submit ${action.on_click.action}:`, action.on_click.command)
+		console.log(`click ${action.on_click.action}:`, action.on_click.command)
 	}
 }
 
-function handleSubmit(action: SubmitAction) {
-	if (action.on_submit.type == "minecraft:command_template") {
-		console.log(`submit ${action.on_submit.type}:`, action.on_submit.template)
-	} else if (action.on_submit.type == "minecraft:custom_template") {
-		console.log(`submit ${action.on_submit.type}:`, `(${action.on_submit.id})`, action.on_submit.template)
-	} else if (action.on_submit.type == "minecraft:custom_form") {
-		console.log(`submit ${action.on_submit.type}:`, `${action.on_submit.id}`)
+function handleDialogClick(action: DialogActionType) {
+	// TODO: extract info from inputs
+
+	if (action.type == "minecraft:dynamic/run_command") {
+		// TODO: show expanded template
+		console.log(`click ${action.type}:`, action.template) 
+	} else if (action.type == "minecraft:dynamic/custom") {
+		// TODO: show inputs
+		console.log(`click ${action.type}:`, `(${action.id})`, action.additions) 
 	} else {
 		// @ts-expect-error
-		console.log(`submit ${action.on_submit.action}:`, action.on_submit)
+		console.log(`submit ${action.action}:`, action)
 	}
 }
 

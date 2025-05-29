@@ -5,7 +5,7 @@ export type RegistryKey = keyof typeof registries | `minecraft:${keyof typeof re
 export type NBTValue =
 	| NBTCompound | NBTList | NBTTuple | NBTSelect | NBTString
 	| NBTNumber | NBTBoolean | NBTTextComponent | NBTClickAction
-	| NBTClickEvent | NBTSubmitAction | NBTInputControl
+	| NBTClickEvent | NBTInputControl
 
 export type NBTCompound = {
 	type: "compound"
@@ -71,10 +71,6 @@ export type NBTClickEvent = {
 	required?: boolean,
 }
 
-export type NBTSubmitAction = {
-	type: "submit_action",
-	required?: boolean,
-}
 
 export type NBTInputControl = {
 	type: "input_control",
@@ -137,14 +133,14 @@ export type DataTextComponent = BaseTextComponent & {
 
 export type TextComponent = TextTextComponent | TranslatableTextComponent | ScoreTextComponent | SelectorTextComponent | KeybindTextComponent | DataTextComponent
 
-export type ButtonAction = {
+export type TextClickAction = {
 	label: TextComponent[],
 	tooltip?: TextComponent[],
 	width: number,
-	on_click: ClickEvent
+	on_click: TextClickEvent
 }
 
-export type ClickEvent = {
+export type TextClickEvent = {
 	action: "open_url",
 	url: string
 } | {
@@ -161,7 +157,7 @@ export type ClickEvent = {
 	page: number
 } | {
 	action: "copy_to_clipboard",
-	valze: string
+	value: string
 } | {
 	action: "show_dialog",
 	dialog: string
@@ -171,23 +167,20 @@ export type ClickEvent = {
 	payload: string
 }
 
-export type SubmitAction = {
+export type DialogAction = {
 	label: TextComponent[],
 	tooltip?: TextComponent[],
-	width: number,
-	on_submit: SubmitEvent
+	width?: number,
+	action?: DialogActionType
 }
 
-export type SubmitEvent = {
-	type: "minecraft:command_template",
-	template: string
+export type DialogActionType = {
+	type: "minecraft:dynamic/run_command",
+	template?: string
 } | {
-	type: "minecraft:custom_template",
-	template: string,
-	id: string
-} | {
-	type: "minecraft:custom_form",
-	id: string
+	type: "minecraft:dynamic/custom",
+	additions?: any, // arbitrary nbt compound
+	id?: string
 }
 
 export type BaseInputControl = {

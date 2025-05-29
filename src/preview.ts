@@ -1,10 +1,10 @@
 import { BaseTextComponent, BooleanInputControl, TextClickEvent, DialogAction, InputControl, SingleOptionInputControl, TextComponent, TextInputControl, TextTextComponent, DialogActionType } from "./types.js"
-import { $, createElement, readFormData, resolveTextComponents, stringifyTextComponents } from "./util.js"
+import { $, createElement, decodeColor, readFormData, resolveTextComponents, resolveTooltip, stringifyTextComponents } from "./util.js"
 import ValidationError from "./ValidationError.js"
 
 const DEFAULT_BUTTON_WIDTH = 150
 
-const defaultTextComponent: Required<BaseTextComponent> = {
+const defaultTextComponent: Omit<Required<BaseTextComponent>, "click_event" | "hover_event"> = {
 	type: "text",
 	color: "white",
 	font: "minecraft:default",
@@ -151,6 +151,7 @@ function createFooter(dialogData: any) {
 }
 
 function renderTextComponent(component: TextTextComponent, parent: BaseTextComponent): HTMLSpanElement {
+	console.log("text", component)
 	const element = createElement("span", { className: "text-component" })
 	const shadow = component.shadow_color || [0, 0, 0, 1] // default shadow color if not provided   (TODO: use darkened color)
 	const shadowCss = `${shadow[0] * 255} ${shadow[1] * 255} ${shadow[2] * 255} / ${shadow[3] * 100}%`
@@ -161,7 +162,7 @@ function renderTextComponent(component: TextTextComponent, parent: BaseTextCompo
 
 	// console.log("Rendering component:", component, "with parent:", parent)
 	element.textContent = component.text || ""
-	element.style.color = component.color || parent.color || defaultTextComponent.color
+	element.style.color = decodeColor(component.color || parent.color || defaultTextComponent.color)
 	element.style.fontWeight = bold ? "bold" : "normal"
 	element.style.fontStyle = italic ? "italic" : "normal"
 	element.style.textDecoration = underlined ? "underline" : "none"
@@ -176,34 +177,18 @@ function renderButton(action: DialogAction): HTMLButtonElement {
 	button.style.setProperty("--width", `${action.width || 150}px`) 
 	// console.log("Rendering button:", action)
 
-	renderTextComponents(button, label)
+	renderTextComponents(button, label, true)
 
-	button.addEventListener("click", () => {
-		console.log(`Button [${stringifyTextComponents(label)}] clicked:`, action.action)
-
-		if (action.action) {
-			handleDialogClick(action.action)
-		}
-	})
+	if (action.action) addClickHandler(button, stringifyTextComponents(label), action.action, "Button")
 
 	if (action.tooltip) {
-		const tip = action.tooltip
-
-		button.addEventListener("mouseenter", e => {
-			console.log("enter")
-			renderTooltip(tip)
-		})
-
-		button.addEventListener("mouseleave", e => {
-			console.log("leave")
-			hideTooltip()
-		})
+		addTooltip(button, action.tooltip)
 	}
 
 	return button
 }
 
-function renderTextComponents(element: HTMLElement, components: TextComponent | TextComponent[]): void {
+function renderTextComponents(element: HTMLElement, components: TextComponent | TextComponent[], suppressEvents: boolean = false): void {
 	if (!Array.isArray(components)) {
 		components = [components]
 	}
@@ -212,7 +197,18 @@ function renderTextComponents(element: HTMLElement, components: TextComponent | 
 	const firstComp: BaseTextComponent = resolvedComponents[0] ?? defaultTextComponent
 	for (const component of resolvedComponents) {
 		// console.log("rendering", component)
-		element.appendChild(renderTextComponent(component, firstComp))
+		const span = renderTextComponent(component, firstComp)
+
+		if (!suppressEvents) {
+			if (component.click_event) addClickHandler(span, component.text, component.click_event, "TextComponent")
+
+			if (component.hover_event) {
+				const tooltip = resolveTooltip(component.hover_event)
+				addTooltip(span, tooltip)
+			}
+		}
+
+		element.appendChild(span)
 	}
 }
 
@@ -249,7 +245,8 @@ function handleDialogClick(action: DialogActionType) {
 		// TODO: show inputs
 		console.log(`click ${action.type}:`, `(${action.id})`, action.additions) 
 	} else {
-		handleTextClick(action)
+		const event = { ...action, action: action.type.substring(10) } as TextClickEvent // convert (key change, remove minecraft:)
+		handleTextClick(event)
 	}
 }
 
@@ -348,13 +345,38 @@ function renderBooleanInput(input: BooleanInputControl, inputElement: HTMLDivEle
 	inputElement.appendChild(label)
 }
 
+function addClickHandler(element: HTMLElement, label: string, action: DialogActionType | TextClickEvent, target: "TextComponent" | "Button") {
+	element.addEventListener("click", () => {
+		if (target == "Button") console.log(`Button [${label}] clicked:`, action)
+		else if (target == "TextComponent") console.log(`Text "${label}" clicked:`, action)
+
+		if (action) {
+			if ("type" in action) {
+				handleDialogClick(action)
+			} else {
+				handleTextClick(action)
+			}
+		}
+	})
+}
+
+function addTooltip(element: HTMLElement, tooltip: TextComponent[]) {
+	element.addEventListener("mouseenter", e => {
+		renderTooltip(tooltip)
+	})
+
+	element.addEventListener("mouseleave", e => {
+		hideTooltip()
+	})
+}
+
 function renderTooltip(text: TextComponent[]) {
 	tooltip.innerHTML = ""
 	renderTextComponents(tooltip, text)
+	console.log("tooltip", text)
 	if (tooltip.innerText.length > 0) tooltip.classList.add("visible")
 }
 
 function hideTooltip() {
-	tooltip.innerHTML = ""
 	tooltip.classList.remove("visible")
 }

@@ -9,8 +9,13 @@ export default {
 		body: {
 			type: "list",
 			elementType: {
-				type: "compound", children: {
-					type: { type: "select", registry: "minecraft:dialog_body_type" }
+				type: "compound",
+				children: {
+					type: {
+						type: "select",
+						registry: "minecraft:dialog_body_type",
+						required: true
+					}
 				}
 			}
 		},

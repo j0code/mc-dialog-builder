@@ -4,10 +4,7 @@ export default {
 	type: "compound",
 	children: {
 		action: {
-			type: "compound",
-			children: {
-				type: { type: "select", registry: "click_event" }
-			}
+			type: "dialog_action"
 		},
 		exit_action: { type: "dialog_action" },
 		columns: { type: "number", default: 2, min: 1, step: 1 },

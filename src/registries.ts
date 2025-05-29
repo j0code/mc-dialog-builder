@@ -8,7 +8,7 @@ import notice from "./data/dialog_type/notice.js"
 import server_links from "./data/dialog_type/server_links.js"
 import text from "./data/text_component_type/text.js"
 import input_control_text from "./data/input_control_type/text.js"
-import { NBTCompound, RegistryKey } from "./types.js"
+import { NBTCompound } from "./types.js"
 import boolean from "./data/input_control_type/boolean.js"
 import single_option from "./data/input_control_type/single_option.js"
 import number_range from "./data/input_control_type/number_range.js"
@@ -24,6 +24,13 @@ import keybind from "./data/text_component_type/keybind.js"
 import nbt from "./data/text_component_type/nbt.js"
 import dynamic_run_command from "./data/dialog_action_type/dynamic/run_command.js"
 import dynamic_custom from "./data/dialog_action_type/dynamic/custom.js"
+import show_text from "./data/hover_event_type/show_text.js"
+import show_item from "./data/hover_event_type/show_item.js"
+import show_entity from "./data/hover_event_type/show_entity.js"
+
+type PlainRegistryKey = "dialog_type" | "dialog_body_type" | "text_component_type"
+	| "click_event_type" | "input_control_type" | "dialog_action_type" | "hover_event_type"
+export type RegistryKey = PlainRegistryKey | `minecraft:${PlainRegistryKey}`
 
 const dialog_body_type = new Map<string, NBTCompound>([
 	["minecraft:plain_message", plain_message],
@@ -76,13 +83,20 @@ const dialog_action_type = new Map<string, NBTCompound>(click_event_type.entries
 	["minecraft:dynamic/custom", dynamic_custom]
 ]))
 
-const registries: Record<string, Map<string, NBTCompound>> = {
+const hover_event_type = new Map<string, NBTCompound>([
+	["show_text",   show_text],
+	["show_item",   show_item],
+	["show_entity", show_entity]
+])
+
+const registries: Record<PlainRegistryKey, Map<string, NBTCompound>> = {
 	dialog_type,
 	dialog_body_type,
 	text_component_type,
 	click_event_type,
 	input_control_type,
-	dialog_action_type
+	dialog_action_type,
+	hover_event_type
 } as const
 
 export default registries

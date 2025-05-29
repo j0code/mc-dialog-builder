@@ -17,6 +17,18 @@ export default {
 				type: "tuple",
 				elementType: { type: "number", min: 0, max: 1, step: 0.003921569 },
 				labels: ["red", "green", "blue", "alpha"]
+			},
+			click_event: {
+				type: "compound",
+				children: {
+					action: { type: "select", registry: "minecraft:click_event_type" }
+				}
+			},
+			hover_event: {
+				type: "compound",
+				children: {
+					action: { type: "select", registry: "minecraft:hover_event_type" }
+				}
 			}
 		}
 	}

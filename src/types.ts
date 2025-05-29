@@ -1,6 +1,4 @@
-import type registries from "./registries.js"
-
-export type RegistryKey = keyof typeof registries | `minecraft:${keyof typeof registries}`
+import { type RegistryKey } from "./registries.js"
 
 export type NBTValue =
 	| NBTCompound | NBTList | NBTTuple | NBTSelect | NBTString
@@ -91,7 +89,9 @@ export type BaseTextComponent = {
 	underlined?: boolean,
 	strikethrough?: boolean,
 	obfuscated?: boolean,
-	shadow_color?: [number, number, number, number]
+	shadow_color?: [number, number, number, number],
+	click_event?: TextClickEvent,
+	hover_event?: TextHoverEvent
 }
 
 export type TextTextComponent = BaseTextComponent & {
@@ -138,13 +138,6 @@ export type DataTextComponent = BaseTextComponent & {
 
 export type TextComponent = TextTextComponent | TranslatableTextComponent | ScoreTextComponent | SelectorTextComponent | KeybindTextComponent | DataTextComponent
 
-export type TextClickAction = {
-	label: TextComponent[],
-	tooltip?: TextComponent[],
-	width: number,
-	on_click: TextClickEvent
-}
-
 export type TextClickEvent = {
 	action: "open_url",
 	url: string
@@ -172,6 +165,21 @@ export type TextClickEvent = {
 	payload: string
 }
 
+export type TextHoverEvent = {
+	action: "show_text",
+	value: TextComponent[]
+} | {
+	action: "show_item",
+	id: string,
+	count?: number,
+	components?: any
+} | {
+	action: "show_entity",
+	name?: TextComponent[],
+	id: string,
+	uuid: string | [number, number, number, number]
+}
+
 export type DialogAction = {
 	label: TextComponent[],
 	tooltip?: TextComponent[],
@@ -180,6 +188,28 @@ export type DialogAction = {
 }
 
 export type DialogActionType = {
+	type: "minecraft:open_url",
+	url: string
+} | {
+	type: "minecraft:run_command",
+	command: string
+} | {
+	type: "minecraft:suggest_command",
+	command: string
+} | {
+	type: "minecraft:change_page",
+	page: number
+} | {
+	type: "minecraft:copy_to_clipboard",
+	value: string
+} | {
+	type: "minecraft:show_dialog",
+	dialog: string
+} | {
+	type: "minecraft:custom",
+	id: string,
+	payload: string
+} | {
 	type: "minecraft:dynamic/run_command",
 	template?: string
 } | {

@@ -5,17 +5,15 @@ import { getRegistry } from "./registries.js"
 import text_component from "./data/text_component.js"
 import { NBTBoolean, NBTCompound, NBTList, NBTNumber, NBTString, NBTTuple, NBTValue } from "./types.js"
 import { $, createElement } from "./util.js"
-import submit_action from "./data/submit_action.js"
 import input_control from "./data/input_control.js"
 import dialog from "./data/dialog.js"
 
-const specialTypeMapping: Record<string, NBTCompound | NBTList> = {
+const specialTypeMapping = {
 	text_component,
 	dialog_action,
 	click_event,
-	submit_action,
 	input_control
-}
+} as const satisfies Record<string, NBTCompound | NBTList>
 
 export function createForm() {
 	const form = createElement("form", { id: "mc-dialog-builder" })
@@ -140,13 +138,15 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 		let inputElement: HTMLElement
 
 		if (childDef.type in specialTypeMapping) {
+			const key = childDef.type as keyof typeof specialTypeMapping
 			const required = "required" in childDef && childDef.required
-			childDef = { ...specialTypeMapping[childDef.type] }
+			childDef = { ...specialTypeMapping[key] }
 			// console.log("mapping type", childDef.type, childDef.required, required, parentId, key)
 			childDef.required ??= required
 		}
 
 		if (childDef.type === "select") {
+			console.log(parentId, childDef.registry)
 			inputElement = createSelect(`${parentId}-${key}`, getRegistry(childDef.registry).keys().toArray().map(value => ({ value })), childDef.required ?? false) // Placeholder for options, should be filled with actual data
 			if (key == "type" || key == "action") {
 				inputElement.addEventListener("change", (event) => {
@@ -221,8 +221,9 @@ function createListItemInput(parentId: string, index: number, elementType: NBTLi
 	let inputElement: HTMLInputElement | HTMLSelectElement | HTMLDivElement
 
 	if (elementType.type in specialTypeMapping) {
+		const key = elementType.type as keyof typeof specialTypeMapping
 		const required = "required" in elementType && elementType.required
-		elementType = specialTypeMapping[elementType.type]
+		elementType = specialTypeMapping[key]
 		elementType.required ??= required
 	}
 

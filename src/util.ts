@@ -1,4 +1,4 @@
-import { TextComponent, TextTextComponent } from "./types.js"
+import { TextComponent, TextHoverEvent, TextTextComponent } from "./types.js"
 import ValidationError from "./ValidationError.js"
 
 export function createElement<K extends keyof HTMLElementTagNameMap>(
@@ -167,4 +167,76 @@ function unescapeBackslash(text: string): string {
 	text = text.replaceAll("\u0000", "\\")
 
 	return text
+}
+
+export function resolveTooltip(event: TextHoverEvent): TextComponent[] {
+	if (event.action == "show_text") {
+		return event.value
+	} if (event.action == "show_item") {
+		const {ns, name} = decomposeId(event.id)
+		const compCount = Object.keys(event.components || {}).length
+
+		return [
+			{ type: "translatable", translate: `block.${ns}.${name}\n` },
+			{ type: "text", text: `${ns}:${name}\n`, color: "dark_gray" }, 
+			{ type: "text", text: `${compCount} component(s)`, color: "dark_gray" }, 
+		]
+	} else if (event.action == "show_entity") {
+		const {ns, name} = decomposeId(event.id)
+		const uuid = UUIDtoString(event.uuid)
+		const arr: TextComponent[] = [
+			{ type: "text", text: `Type: ` },
+			{ type: "translatable", translate: `entity.${ns}.${name}` },
+			{ type: "text", text: "\n" },
+			{ type: "text", text: uuid }
+		]
+
+		if (event.name) return [...event.name, { type: "text", text: `\n` }, ...arr]
+		return arr
+	}
+	return []
+}
+
+function decomposeId(id: string) {
+	const arr  = id.split(":")
+	const ns   = arr.length == 2 ? arr[0] : "minecraft"
+	const name = arr.length == 2 ? arr[1] : id
+
+	return {ns, name}
+}
+
+function UUIDtoString(uuid: string | [number, number, number, number]): string {
+	if (typeof uuid == "string") return uuid
+
+	const buffer = new Uint32Array(uuid) // underflows negative ints into high numbers
+	const hex = buffer.values().map(n => n.toString(16)).toArray()
+
+	return `${hex[0]}-${hex[1].substring(0, 4)}-${hex[1].substring(4)}-${hex[2].substring(0, 4)}-${hex[2].substring(4)}${hex[3]}`
+	// 00000000-1111-1111-2222-222233333333     (digits are indices of hex)
+}
+
+// from minecraft.wiki
+const colorMap: Record<string, string> = {
+	black:        "#000000",
+	dark_blue:    "#0000AA",
+	dark_green:   "#00AA00",
+	dark_aqua:    "#00AAAA",
+	dark_red:     "#AA0000",
+	dark_purple:  "#AA00AA",
+	gold:         "#FFAA00",
+	gray:         "#AAAAAA",
+	dark_gray:    "#555555",
+	blue:         "#5555FF",
+	green:        "#55FF55",
+	aqua:         "#55FFFF",
+	red:          "#FF5555",
+	light_purple: "#FF55FF",
+	yellow:       "#FFFF55",
+	white:        "#FFFFFF"
+}
+
+export function decodeColor(color: string) {
+	if (color in colorMap) return colorMap[color]
+	if (/^#([A-Fa-f0-9]{6})$/i.test(color)) return color // valid hex color
+	return "white"
 }

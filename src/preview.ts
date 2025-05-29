@@ -43,7 +43,7 @@ export function previewDialog() {
 		preview.classList.remove("error")
 	}
 
-	console.log("Dialog Data:", dialogData)
+	// console.log("Dialog Data:", dialogData)
 	
 	const header = createHeader(dialogData.title || " ")
 	const body = createBody(dialogData)
@@ -71,9 +71,9 @@ function createBody(dialogData: any) {
 		const bodyElement = createElement("p", { className: "preview-body-element" })
 
 		if (elem.type == "minecraft:plain_message") {
-			console.log("Rendering plain message:", elem)
+			// console.log("Rendering plain message:", elem)
 			renderTextComponents(bodyElement, elem.contents || [])
-		}
+		} // TODO: minecraft:item
 
 		element.appendChild(bodyElement)
 	}
@@ -161,7 +161,7 @@ function renderButton(action: DialogAction): HTMLButtonElement {
 	const label = resolveTextComponents(action.label)
 	const button = createElement("button", { className: "dialog-button" })
 	button.style.setProperty("--width", `${action.width || 150}px`) 
-	console.log("Rendering button:", action)
+	// console.log("Rendering button:", action)
 
 	if (action.tooltip) {
 		button.title = stringifyTextComponents(action.tooltip)
@@ -170,10 +170,11 @@ function renderButton(action: DialogAction): HTMLButtonElement {
 	renderTextComponents(button, label)
 
 	button.addEventListener("click", () => {
-		// @ts-expect-error
-		console.log(`Button [${stringifyTextComponents(label)}] clicked:`, action.on_click ?? action.on_submit)
+		console.log(`Button [${stringifyTextComponents(label)}] clicked:`, action.action)
 
-		if (action.action) handleDialogClick(action.action)
+		if (action.action) {
+			handleDialogClick(action.action)
+		}
 	})
 
 	return button
@@ -187,14 +188,31 @@ function renderTextComponents(element: HTMLElement, components: TextComponent | 
 
 	const firstComp: BaseTextComponent = resolvedComponents[0] ?? defaultTextComponent
 	for (const component of resolvedComponents) {
-		console.log("rendering", component)
+		// console.log("rendering", component)
 		element.appendChild(renderTextComponent(component, firstComp))
 	}
 }
 
-function handleTextClick(action: TextClickAction) {
-	if (action.on_click.action == "run_command") {
-		console.log(`click ${action.on_click.action}:`, action.on_click.command)
+function handleTextClick(event: TextClickEvent) {
+	if (event.action == "open_url") {
+		console.log(`click ${event.action}:`, event.url)
+	} else if (event.action == "open_file") {
+		console.log(`click ${event.action}:`, event.path)
+	} else if (event.action == "run_command") {
+		console.log(`click ${event.action}:`, event.command)
+	} else if (event.action == "suggest_command") {
+		console.log(`click ${event.action}:`, event.command)
+	} else if (event.action == "change_page") {
+		console.log(`click ${event.action}:`, event.page)
+	} else if (event.action == "copy_to_clipboard") {
+		console.log(`click ${event.action}:`, event.value)
+	} else if (event.action == "show_dialog") {
+		console.log(`click ${event.action}:`, event.dialog)
+	} else if (event.action == "custom") {
+		console.log(`click ${event.action}:`, `(${event.id})`, event.payload)
+	} else {
+		// @ts-expect-error
+		console.log(`click ${event.action}:`, event)
 	}
 }
 
@@ -208,8 +226,7 @@ function handleDialogClick(action: DialogActionType) {
 		// TODO: show inputs
 		console.log(`click ${action.type}:`, `(${action.id})`, action.additions) 
 	} else {
-		// @ts-expect-error
-		console.log(`submit ${action.action}:`, action)
+		handleTextClick(action)
 	}
 }
 

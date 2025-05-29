@@ -1,4 +1,4 @@
-import click_action from "./data/click_action.js"
+import dialog_action from "./data/dialog_action.js"
 import click_event from "./data/click_event.js"
 import { previewDialog } from "./preview.js"
 import { getRegistry } from "./registries.js"
@@ -11,7 +11,7 @@ import dialog from "./data/dialog.js"
 
 const specialTypeMapping: Record<string, NBTCompound | NBTList> = {
 	text_component,
-	click_action,
+	dialog_action,
 	click_event,
 	submit_action,
 	input_control
@@ -25,7 +25,7 @@ export function createForm() {
 	
 
 	form.addEventListener("change", () => {
-		console.log("CHANGE", $("#auto-reload-checkbox", "input")?.checked)
+		// console.log("CHANGE", $("#auto-reload-checkbox", "input")?.checked)
 		if (!$("#auto-reload-checkbox", "input")?.checked) return
 		;previewDialog()
 	})

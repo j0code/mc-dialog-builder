@@ -6,11 +6,11 @@ export default {
 			actions: {
 				type: "list",
 				elementType: {
-					type: "click_action"
+					type: "dialog_action"
 				},
 				required: true
 			},
 			columns: { type: "number", default: 2, min: 1, step: 1 },
-			exit_action: { type: "click_action" },
+			exit_action: { type: "dialog_action" },
 		}
 	} satisfies NBTCompound

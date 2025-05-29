@@ -71,10 +71,10 @@ const input_control_type = new Map<string, NBTCompound>([
 	["minecraft:number_range",  number_range],
 ])
 
-const dialog_action_type = new Map<string, NBTCompound>([
+const dialog_action_type = new Map<string, NBTCompound>(click_event_type.entries().toArray().concat([
 	["minecraft:dynamic/run_command", dynamic_run_command],
 	["minecraft:dynamic/custom", dynamic_custom]
-])
+]))
 
 const registries: Record<string, Map<string, NBTCompound>> = {
 	dialog_type,

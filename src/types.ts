@@ -4,8 +4,8 @@ export type RegistryKey = keyof typeof registries | `minecraft:${keyof typeof re
 
 export type NBTValue =
 	| NBTCompound | NBTList | NBTTuple | NBTSelect | NBTString
-	| NBTNumber | NBTBoolean | NBTTextComponent | NBTClickAction
-	| NBTClickEvent | NBTInputControl
+	| NBTNumber | NBTBoolean | NBTTextComponent | NBTTextClickAction
+	| NBTTextClickEvent | NBTDialogAction | NBTInputControl
 
 export type NBTCompound = {
 	type: "compound"
@@ -61,12 +61,17 @@ export type NBTTextComponent = {
 	required?: boolean,
 }
 
-export type NBTClickAction = {
+export type NBTTextClickAction = {
 	type: "click_action",
 	required?: boolean,
 }
 
-export type NBTClickEvent = {
+export type NBTDialogAction = {
+	type: "dialog_action",
+	required?: boolean,
+}
+
+export type NBTTextClickEvent = {
 	type: "click_event",
 	required?: boolean,
 }

@@ -4,10 +4,10 @@ export default {
 	type: "compound",
 	children: {
 		yes: {
-			type: "click_action"
+			type: "dialog_action"
 		},
 		no: {
-			type: "click_action"
+			type: "dialog_action"
 		}
 	}
 } satisfies NBTCompound

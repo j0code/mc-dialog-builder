@@ -1,4 +1,4 @@
-import { BaseTextComponent, BooleanInputControl, TextClickEvent, DialogAction, InputControl, SingleOptionInputControl, TextClickAction, TextComponent, TextInputControl, TextTextComponent, DialogActionType } from "./types.js"
+import { BaseTextComponent, BooleanInputControl, TextClickEvent, DialogAction, InputControl, SingleOptionInputControl, TextComponent, TextInputControl, TextTextComponent, DialogActionType } from "./types.js"
 import { $, createElement, readFormData, resolveTextComponents, stringifyTextComponents } from "./util.js"
 import ValidationError from "./ValidationError.js"
 
@@ -26,6 +26,8 @@ const backButton: Omit<DialogAction, "action"> = {
 	width: DEFAULT_BUTTON_WIDTH
 }
 
+let tooltip: HTMLDivElement
+
 export function previewDialog() {
 	const form = $("#mc-dialog-builder", "form")
 	const preview = $("#preview", "div")
@@ -48,10 +50,21 @@ export function previewDialog() {
 	const header = createHeader(dialogData.title || " ")
 	const body = createBody(dialogData)
 	const footer = createFooter(dialogData)
-	
+	const tooltipContainer = createElement("div", { id: "tooltip-container" })
+	tooltip = createElement("div", { id: "tooltip" })
+
+	window.addEventListener("mousemove", e => {
+		const guiScale = parseInt($("#gui-scale-input", "input").value, 10)
+		tooltipContainer.style.setProperty('--cursor-x', `${e.clientX + 8*guiScale}px`);
+		tooltipContainer.style.setProperty('--cursor-y', `${e.clientY - tooltipContainer.clientHeight/2}px`);
+	})
+
+	tooltipContainer.appendChild(tooltip)
+
 	preview.appendChild(header)
 	preview.appendChild(body)
 	preview.appendChild(footer)
+	preview.appendChild(tooltipContainer)
 }
 
 function createHeader(title: string) {
@@ -163,10 +176,6 @@ function renderButton(action: DialogAction): HTMLButtonElement {
 	button.style.setProperty("--width", `${action.width || 150}px`) 
 	// console.log("Rendering button:", action)
 
-	if (action.tooltip) {
-		button.title = stringifyTextComponents(action.tooltip)
-	}
-
 	renderTextComponents(button, label)
 
 	button.addEventListener("click", () => {
@@ -176,6 +185,20 @@ function renderButton(action: DialogAction): HTMLButtonElement {
 			handleDialogClick(action.action)
 		}
 	})
+
+	if (action.tooltip) {
+		const tip = action.tooltip
+
+		button.addEventListener("mouseenter", e => {
+			console.log("enter")
+			renderTooltip(tip)
+		})
+
+		button.addEventListener("mouseleave", e => {
+			console.log("leave")
+			hideTooltip()
+		})
+	}
 
 	return button
 }
@@ -323,4 +346,15 @@ function renderBooleanInput(input: BooleanInputControl, inputElement: HTMLDivEle
 	
 	inputElement.appendChild(checkbox)
 	inputElement.appendChild(label)
+}
+
+function renderTooltip(text: TextComponent[]) {
+	tooltip.innerHTML = ""
+	renderTextComponents(tooltip, text)
+	if (tooltip.innerText.length > 0) tooltip.classList.add("visible")
+}
+
+function hideTooltip() {
+	tooltip.innerHTML = ""
+	tooltip.classList.remove("visible")
 }

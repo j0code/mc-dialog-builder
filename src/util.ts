@@ -62,6 +62,8 @@ export function readFormElements(elements: Element[], array: boolean = false): R
 					if (input.required) {
 						throw new ValidationError("%s is required!", input.id)
 					}
+				} else if (input.dataset.type == "string") {
+					value = unescapeBackslash(value)
 				}
 				
 				if (value || input.required) data[input.dataset.key!] = value || ""
@@ -156,4 +158,13 @@ function textComponentJoin(components: TextComponent[], separator: TextComponent
 	}
 
 	return list
+}
+
+function unescapeBackslash(text: string): string {
+	text = text.replaceAll("\u0000", "")
+	text = text.replaceAll("\\\\", "\u0000")
+	text = text.replaceAll("\\n", "\n")
+	text = text.replaceAll("\u0000", "\\")
+
+	return text
 }

@@ -156,3 +156,39 @@
 	resize: none;
 	height: calc(var(--height) * var(--gui-scale));
 }
+
+#preview:hover #tooltip-container:has(.visible) {
+	display: block;
+}
+
+@property --cursor-x {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --cursor-y {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+#tooltip-container {
+	display: none;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	will-change: translate;
+	translate: var(--cursor-x) var(--cursor-y);
+	border: calc(0.9px * var(--gui-scale)) solid #000000e0;
+	border-radius: calc(3px * var(--gui-scale));
+	pointer-events: none;
+}
+
+#tooltip {
+	position: static;
+	background-color: #000000e0;
+	padding: 3px;
+	border: calc(1px * var(--gui-scale)) solid #26035df0;
+	border-radius: calc(2px * var(--gui-scale));
+}

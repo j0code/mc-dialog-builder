@@ -1,4 +1,4 @@
-import registries from "./registries.js"
+import type registries from "./registries.js"
 
 export type RegistryKey = keyof typeof registries | `minecraft:${keyof typeof registries}`
 

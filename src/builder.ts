@@ -7,6 +7,7 @@ import { NBTBoolean, NBTCompound, NBTList, NBTNumber, NBTString, NBTTuple, NBTVa
 import { $, createElement } from "./util.js"
 import submit_action from "./data/submit_action.js"
 import input_control from "./data/input_control.js"
+import dialog from "./data/dialog.js"
 
 const specialTypeMapping: Record<string, NBTCompound | NBTList> = {
 	text_component,
@@ -19,28 +20,10 @@ const specialTypeMapping: Record<string, NBTCompound | NBTList> = {
 export function createForm() {
 	const form = createElement("form", { id: "mc-dialog-builder" })
 	
-	const dialogElement = createCompoundInput("dialog", "Dialog", {
-		type: "compound",
-		children: {
-			type: { type: "select", registry: "minecraft:dialog_type", required: true },
-			title: { type: "string", placeholder: "Enter dialog title", required: true },
-			external_title: { type: "string", placeholder: "Enter external title" },
-			body: {
-				type: "list",
-				elementType: {
-					type: "compound", children: {
-						type: { type: "select", registry: "minecraft:dialog_body_type" }
-					}
-				}
-			},
-			can_close_with_escape: { type: "boolean" }
-		},
-		required: true
-	}, true)
+	const dialogElement = createCompoundInput("dialog", "Dialog", dialog, true)
 
 	
 
-	// auto reload preview on change (TODO: toggle)
 	form.addEventListener("change", () => {
 		console.log("CHANGE", $("#auto-reload-checkbox", "input")?.checked)
 		if (!$("#auto-reload-checkbox", "input")?.checked) return
@@ -250,7 +233,7 @@ function createListItemInput(parentId: string, index: number, elementType: NBTLi
 	} else if (elementType.type === "boolean") {
 		inputElement = createBooleanInput(`${parentId}-${index}`, elementType)
 	} else if (elementType.type === "compound") {
-		inputElement = createCompoundInput(`${parentId}-${index}`, index+"", elementType, !evenChild, true)
+		inputElement = createCompoundInput(`${parentId}-${index}`, index+"", elementType, !evenChild, !elementType.required)
 		inputElement.classList.add("open") // open by default since it has just been created
 	} else {
 		throw new Error(`Unsupported list item type: ${elementType.type}`)

@@ -10,7 +10,7 @@ export default {
 				},
 				required: true
 			},
-			columns: { type: "number", default: 2, min: 1, step: 1, required: true },
-			on_cancel: { type: "click_event" },
+			columns: { type: "number", default: 2, min: 1, step: 1 },
+			exit_action: { type: "click_action" },
 		}
 	} satisfies NBTCompound

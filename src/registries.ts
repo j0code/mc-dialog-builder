@@ -6,17 +6,12 @@ import dialog_list from "./data/dialog_type/dialog_list.js"
 import multi_action from "./data/dialog_type/multi_action.js"
 import notice from "./data/dialog_type/notice.js"
 import server_links from "./data/dialog_type/server_links.js"
-import simple_input_form from "./data/dialog_type/simple_input_form.js"
-import command_template from "./data/submit_method_type/command_template.js"
-import custom_form from "./data/submit_method_type/custom_form.js"
-import custom_template from "./data/submit_method_type/custom_template.js"
 import text from "./data/text_component_type/text.js"
 import input_control_text from "./data/input_control_type/text.js"
 import { NBTCompound, RegistryKey } from "./types.js"
 import boolean from "./data/input_control_type/boolean.js"
 import single_option from "./data/input_control_type/single_option.js"
 import number_range from "./data/input_control_type/number_range.js"
-import multi_action_input_form from "./data/dialog_type/multi_action_input_form.js"
 import open_url from "./data/click_event_type/open_url.js"
 import suggest_command from "./data/click_event_type/suggest_command.js"
 import copy_to_clipboard from "./data/click_event_type/copy_to_clipboard.js"
@@ -27,6 +22,8 @@ import score from "./data/text_component_type/score.js"
 import selector from "./data/text_component_type/selector.js"
 import keybind from "./data/text_component_type/keybind.js"
 import nbt from "./data/text_component_type/nbt.js"
+import dynamic_run_command from "./data/dialog_action_type/dynamic/run_command.js"
+import dynamic_custom from "./data/dialog_action_type/dynamic/custom.js"
 
 const dialog_body_type = new Map<string, NBTCompound>([
 	["minecraft:plain_message", plain_message],
@@ -39,8 +36,8 @@ const dialog_type = new Map<string, NBTCompound>([
 	["minecraft:multi_action", multi_action],
 	["minecraft:server_links", server_links],
 	["minecraft:dialog_list",  dialog_list],
-	["minecraft:simple_input_form", simple_input_form],
-	["minecraft:multi_action_input_form", multi_action_input_form]
+	// ["minecraft:simple_input_form", simple_input_form], /// LEGACY, removed in 1.21.6-pre1
+	// ["minecraft:multi_action_input_form", multi_action_input_form] /// LEGACY, removed in 1.21.6-pre1
 ])
 
 const text_component_type = new Map<string, NBTCompound>([
@@ -61,11 +58,11 @@ const click_event_type = new Map<string, NBTCompound>([
 	["custom",            custom],
 ])
 
-const submit_method_type = new Map<string, NBTCompound>([
+/*const submit_method_type = new Map<string, NBTCompound>([ /// LEGACY, remove in 1.21.6-pre1
 	["minecraft:custom_form",      custom_form],
 	["minecraft:command_template", command_template],
 	["minecraft:custom_template",  custom_template],
-])
+])*/
 
 const input_control_type = new Map<string, NBTCompound>([
 	["minecraft:text",          input_control_text],
@@ -74,13 +71,18 @@ const input_control_type = new Map<string, NBTCompound>([
 	["minecraft:number_range",  number_range],
 ])
 
-const registries = {
+const dialog_action_type = new Map<string, NBTCompound>(([
+	["minecraft:dynamic/run_command", dynamic_run_command],
+	["minecraft:dynamic/custom", dynamic_custom]
+] as [string, NBTCompound ][]).concat(click_event_type.entries().toArray()))
+
+const registries: Record<string, Map<string, NBTCompound>> = {
 	dialog_type,
 	dialog_body_type,
 	text_component_type,
 	click_event_type,
-	submit_method_type,
-	input_control_type
+	input_control_type,
+	dialog_action_type
 } as const
 
 export default registries

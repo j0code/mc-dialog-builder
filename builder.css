@@ -135,7 +135,7 @@ form {
 html[data-highlight-required="true"] {
 	:required,
 	[data-required="true"] {
-		> summary {
+		> .nesting-input-head > .nesting-input-name {
 			color: red;
 		}
 	}

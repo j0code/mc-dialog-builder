@@ -83,11 +83,11 @@ function createBody(dialogData: any) {
 		element.appendChild(bodyElement)
 	}
 
-	if (["minecraft:simple_input_form", "minecraft:multi_action_input_form"].includes(dialogData.type)) {
-		renderInputs(dialogData, element)
+	if ("inputs" in dialogData && Array.isArray(dialogData.inputs)) {
+		renderInputs(dialogData.inputs, element)
 	}
 
-	if (["minecraft:minecraft:multi_action", "minecraft:multi_action_input_form"].includes(dialogData.type)) {
+	if (["minecraft:multi_action"].includes(dialogData.type)) {
 		const actionGrid = createElement("div", { id: "action-grid" })
 		const columns = dialogData.columns || 2
 
@@ -227,9 +227,8 @@ function handleSubmit(action: SubmitAction) {
 	}
 }
 
-function renderInputs(dialogData: any, element: HTMLElement) {
+function renderInputs(inputs: InputControl[], element: HTMLElement) {
 	const inputsContainer = createElement("div", { id: "inputs-container" })
-	const inputs: InputControl[] = dialogData.inputs || []
 	
 	for (const input of inputs) {
 		const inputElement = createElement("div", { className: "input-element" })

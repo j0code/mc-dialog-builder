@@ -6,6 +6,11 @@ export default {
 		label: { type: "text_component", required: true },
 		tooltip: { type: "text_component" },
 		width: { type: "number", default: 150, min: 1, max: 1024, step: 1 },
-		on_click: { type: "click_event" }
+		action: {
+			type: "compound",
+			children: {
+				type: { type: "select", registry: "dialog_action_type" }
+			}
+		}
 	}
 } satisfies NBTCompound

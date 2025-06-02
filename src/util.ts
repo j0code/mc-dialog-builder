@@ -1,4 +1,4 @@
-import { TextComponent, TextHoverEvent, TextTextComponent } from "./types.js"
+import { BaseTextComponent, TextComponent, TextHoverEvent, TextTextComponent } from "./types.js"
 import ValidationError from "./ValidationError.js"
 
 export function createElement<K extends keyof HTMLElementTagNameMap>(
@@ -95,25 +95,47 @@ export function readFormElements(elements: Element[], array: boolean = false): R
 	return data
 }
 
+function extractBaseTextComponentProps(component: TextComponent): Omit<BaseTextComponent, "type"> {
+	// List of type-specific properties to exclude
+	const baseProps = [
+		"color", "font", "bold", "italic", "underlined", "strikethrough",
+		"obfuscated", "shadow_color", "click_event", "hover_event"
+	]
+
+	type BaseProp = (typeof baseProps)[number]
+
+	const base: Record<string, any> = {}
+	for (const key in component) {
+		if (baseProps.includes(key)) {
+			base[key] = (component as any)[key]
+		}
+	}
+
+	return base
+}
+
 function resolveTextComponent(component: TextComponent): TextTextComponent | TextTextComponent[] { // TODO: keep formatting
 	// console.log("resolveTextComponent", component)
+	const base = extractBaseTextComponentProps(component)
+
 	if (component.type == "text") {
-		return component
+		return { ...base, type: "text", text: component.text }
 	} else if (component.type == "translatable") {
-		return { type: "text", text: component.translate }
+		return { ...base, type: "text", text: component.translate }
 	} else if (component.type == "score") {
-		return { type: "text", text: "" }
+		return { ...base, type: "text", text: "" }
 	} else if (component.type == "selector") {
 		const names = ["Alex", "Steve"]
-		const separator: TextComponent | TextComponent[] = component.separator ?? { type: "text", text: ", ", color: "gray" }
-		const nameComponents = names.map(name => createPlayerNameComponent(name))
-		return resolveTextComponents(textComponentJoin(nameComponents, separator))
+		const separator: TextTextComponent | TextTextComponent[] = component.separator ? resolveTextComponents(component.separator) : { type: "text", text: ", ", color: "gray" }
+		const nameComponents = names.map(name => createPlayerNameComponent(name, base))
+		// Merge base into each resolved component
+		return textComponentJoin(nameComponents, separator)
 	} else if (component.type == "keybind") {
-		return { type: "text", text: component.keybind }
-	}else if (component.type == "nbt") {
-		return { type: "text", text: component.nbt }
+		return { ...base, type: "text", text: component.keybind }
+	} else if (component.type == "nbt") {
+		return { ...base, type: "text", text: component.nbt }
 	}
-	return { type: "text", text: "ERROR! Unknown TextComponent type!" }
+	return { ...base, type: "text", text: "ERROR! Unknown TextComponent type!" }
 }
 
 export function resolveTextComponents(components: TextComponent | TextComponent[]): TextTextComponent[] {
@@ -134,24 +156,29 @@ export function stringifyTextComponents(components: TextComponent | TextComponen
 	return resolveTextComponents(components).map(comp => comp.text).join("")
 }
 
-function createPlayerNameComponent(name: string): TextTextComponent { // TODO: add tooltip
-	/*const uuid = crypto.randomUUID()
-	const tooltip: TextTextComponent = {
-		type: "text",
-		text: `${name}\nType: Player\n${uuid}`,
-	}*/
+function createPlayerNameComponent(name: string, base: Omit<BaseTextComponent, "type">): TextTextComponent { // TODO: add tooltip
+	const uuid = crypto.randomUUID()
+	const tooltip = resolveTooltip({ action: "show_entity", name: [{type: "text", text: name}], id: "minecraft:player", uuid })
 
 	return {
+		hover_event: { action: "show_text", value: tooltip },
+		...base,
 		type: "text",
 		text: name
 	}
 }
 
-function textComponentJoin(components: TextComponent[], separator: TextComponent | TextComponent[]): TextComponent[] {
+function textComponentJoin<
+	TComp extends TextComponent = TextComponent,
+	TSep  extends TextComponent = TextComponent
+>(
+	components: TComp[],
+	separator: TSep | TSep[]
+): (TComp | TSep | TextTextComponent)[] {
 	if (components.length == 0) return [{ type: "text", text: "" }]
 	if (components.length == 1) return [components[0]]
 
-	let list: TextComponent[] = []
+	let list: (TComp | TSep)[] = []
 	for (let i = 0; i < components.length; i++) {
 		if (i > 0) list = list.concat(separator)
 		list.push(components[i])

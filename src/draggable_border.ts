@@ -48,7 +48,6 @@ export function createDraggableBorder(leftDiv: HTMLElement): void {
 	draggableBorder.tabIndex = 0
 
 	draggableBorder.addEventListener("keydown", e => {
-		console.log(e.code, vwtoPx(5))
 		const currentWidth = pxToVw(leftDiv.offsetWidth)
 		let newWidth = currentWidth
 

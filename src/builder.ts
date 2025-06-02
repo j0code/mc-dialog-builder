@@ -4,7 +4,7 @@ import { previewDialog } from "./preview.js"
 import { getRegistry } from "./registries.js"
 import text_component from "./data/text_component.js"
 import { NBTBoolean, NBTCompound, NBTList, NBTNumber, NBTString, NBTTuple, NBTValue } from "./types.js"
-import { $, createElement } from "./util.js"
+import { $, createElement, onTrigger } from "./util.js"
 import input_control from "./data/input_control.js"
 import dialog from "./data/dialog.js"
 
@@ -93,7 +93,7 @@ function createBooleanInput(id: string, def: NBTBoolean) {
 
 function createCompoundInput(id: string, name: string, def: NBTCompound, evenChild: boolean, removable: boolean = false) {
 	const element = createElement("div", { id, className: "nesting-input" })
-	const headerBar = createHeaderBar(element, name)
+	const headerBar = createHeaderBar(element, name, def.required ?? false)
 	const childrenContainer = createElement("div", { className: "children-container" })
 	const genericChildren = createElement("div", { className: "compound-input-generic-children" })
 	const specificChildren = createElement("div", { className: "compound-input-specific-children" })
@@ -102,12 +102,12 @@ function createCompoundInput(id: string, name: string, def: NBTCompound, evenChi
 	element.dataset.type = "compound"
 	element.dataset.required = (def.required ?? false)+""
 	element.classList.add(evenChild ? "even-child" : "odd-child")
+	element.role = "group"
+	element.ariaLabel = name
 
 	if (removable) {
 		const removeButton = createHeaderBarButton("Remove item", "remove-item")
-		removeButton.addEventListener("click", () => {
-			element.remove()
-		})
+		onTrigger(removeButton, () => element.remove())
 		headerBar.appendChild(removeButton)
 	}
 
@@ -183,6 +183,7 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 
 		const label = createElement("label", {})
 		label.textContent = key
+		label.ariaLabel = key
 		if (childDef.required != undefined) label.dataset.labelsRequired = childDef.required+""
 		label.appendChild(inputElement)
 		element.appendChild(label)
@@ -191,7 +192,7 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 
 function createListInput(id: string, name: string, def: NBTList, evenChild: boolean) {
 	const element = createElement("div", { id, className: "nesting-input" })
-	const headerBar = createHeaderBar(element, name)
+	const headerBar = createHeaderBar(element, name, def.required ?? false)
 	const childrenContainer = createElement("div", { className: "children-container" })
 	const addButton = createHeaderBarButton("Add item", "add-item")
 
@@ -199,6 +200,8 @@ function createListInput(id: string, name: string, def: NBTList, evenChild: bool
 	element.dataset.type = "list"
 	element.dataset.required = (def.required ?? false)+""
 	element.classList.add(evenChild ? "even-child" : "odd-child")
+	element.role = "group"
+	element.ariaLabel = name
 
 	function addItem() {
 		const index = childrenContainer.childElementCount
@@ -208,7 +211,7 @@ function createListInput(id: string, name: string, def: NBTList, evenChild: bool
 		childrenContainer.appendChild(itemElement)
 	}
 
-	addButton.addEventListener("click", addItem)
+	onTrigger(addButton, addItem)
 
 	headerBar.appendChild(addButton)
 	element.appendChild(headerBar)
@@ -248,13 +251,14 @@ function createListItemInput(parentId: string, index: number, elementType: NBTLi
 
 	const label = createElement("label", {})
 	label.textContent = labelText+""
+	label.ariaLabel = labelText+""
 	label.appendChild(inputElement)
 	return label
 }
 
 function createTupleInput(id: string, name: string, def: NBTTuple, evenChild: boolean) {
 	const element = createElement("div", { id, className: "nesting-input" })
-	const headerBar = createHeaderBar(element, name)
+	const headerBar = createHeaderBar(element, name, def.required ?? false)
 	const childrenContainer = createElement("div", { className: "children-container" })
 
 	console.log("Creating tuple input for", id, name, def)
@@ -263,6 +267,8 @@ function createTupleInput(id: string, name: string, def: NBTTuple, evenChild: bo
 	element.dataset.type = "tuple"
 	element.classList.add(evenChild ? "even-child" : "odd-child")
 	element.appendChild(headerBar)
+	element.role = "group"
+	element.ariaLabel = name
 
 	for (let i = 0; i < def.labels.length; i++) {
 		const label = def.labels[i]
@@ -276,15 +282,21 @@ function createTupleInput(id: string, name: string, def: NBTTuple, evenChild: bo
 	return element
 }
 
-function createHeaderBar(owner: HTMLElement, name: string) {
+function createHeaderBar(owner: HTMLElement, name: string, open: boolean) {
 	const headerBar = createElement("div", { className: "nesting-input-head" })
-	const nameElement = createElement("span", { className: "nesting-input-name" })
+	const nameElement = createElement("summary", { className: "nesting-input-name" })
 
 	nameElement.textContent = name
+	nameElement.ariaLabel = open ? "close" : "open"
+	nameElement.role = "button"
 	nameElement.tabIndex = 0 // make it focusable
-	nameElement.addEventListener("click", () => {
+
+	function toggleOpen() {
 		owner.classList.toggle("open")
-	})
+		nameElement.ariaLabel = owner.classList.contains("open") ? "close" : "open"
+	}
+
+	onTrigger(nameElement, toggleOpen)
 
 	headerBar.appendChild(nameElement)
 	return headerBar

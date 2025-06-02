@@ -287,3 +287,24 @@ export function shadowFor(color: string | undefined): [number, number, number, n
 
 	return [r / 255 * 0.75, g / 255 * 0.75, b / 255 * 0.75, 0.25]
 }
+
+/**
+ * Triggers on left click or Enter key press
+ * @param element Element to register the events on
+ * @param cb Callback to call when triggered
+ */
+export function onTrigger(element: HTMLElement, cb: () => void) {
+	element.addEventListener("click", e => {
+		if (e.button == 0) {
+			cb()
+			e.preventDefault()
+		}
+	})
+
+	element.addEventListener("keypress", e => {
+		if (e.code == "Enter") {
+			cb()
+			e.preventDefault()
+		}
+	})
+}

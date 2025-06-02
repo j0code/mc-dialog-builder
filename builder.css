@@ -148,13 +148,3 @@ html[data-highlight-required="true"] {
 		color: red;
 	}
 }
-
-summary {
-	margin-left: calc(-1em * 0.66 - 1em * 0.4); /* marker width + marker margin right */
-}
-
-@-moz-document url-prefix() {
-	summary {
-		margin-left: calc(-1em * 0.88); /* marker width */
-	}
-}

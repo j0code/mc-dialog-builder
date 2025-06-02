@@ -9,6 +9,8 @@ export const THEMES = ["default", "light", "dark", "mcstacker", "mcstacker-nosta
 export function createControls(form: HTMLFormElement, settings: Settings): HTMLDivElement {
 	const controls = createElement("div", { id: "controls" })
 
+	controls.ariaLabel = "Controls"
+
 	const previewButton = createElement("button", { id: "preview-button" })
 	previewButton.textContent = "Preview"
 	previewButton.type = "button"
@@ -57,11 +59,13 @@ export function createControls(form: HTMLFormElement, settings: Settings): HTMLD
 
 	const autoReloadLabel = createElement("label", { id: "auto-reload-label", textContent: "Auto-reload preview" })
 	const autoReloadCheckbox = createElement("input", { id: "auto-reload-checkbox" })
+	autoReloadLabel.ariaLabel = "Auto-reload preview"
 	autoReloadCheckbox.type = "checkbox"
 	autoReloadCheckbox.checked = settings.autoReload
 	autoReloadLabel.appendChild(autoReloadCheckbox)
 
 	const highlightRequiredLabel = createElement("label", { id: "highlight-required-label", textContent: "Highlight required" })
+	highlightRequiredLabel.ariaLabel = "Highlight required"
 	const highlightRequiredCheckbox = createElement("input", { id: "highlight-required-checkbox" })
 	highlightRequiredCheckbox.type = "checkbox"
 	highlightRequiredCheckbox.checked = settings.highlightRequired
@@ -74,6 +78,8 @@ export function createControls(form: HTMLFormElement, settings: Settings): HTMLD
 
 	const themeLabel = createElement("label", { id: "theme-label", textContent: "Theme" })
 	const themeSelect = createElement("select", { id: "theme-select" })
+
+	themeLabel.ariaLabel = "Theme"
 
 	THEMES.forEach(theme => {
 		const option = createElement("option", { value: theme, textContent: theme })
@@ -94,7 +100,10 @@ export function createControls(form: HTMLFormElement, settings: Settings): HTMLD
 	const guiScaleLabel = createElement("label", { id: "gui-scale-label", textContent: "GUI Scale:" })
 	const guiScaleInput = createElement("input", { id: "gui-scale-input" })
 
+	guiScaleLabel.ariaLabel = "GUI Scale"
+
 	guiScaleInput.type = "range"
+	guiScaleInput.ariaLabel = "GUI Scale"
 	guiScaleInput.min = "1"
 	guiScaleInput.max = "5"
 	guiScaleInput.step = "1"

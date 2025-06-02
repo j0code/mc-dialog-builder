@@ -1,5 +1,6 @@
+import text from "./data/text_component_type/text.js"
 import { BaseTextComponent, BooleanInputControl, TextClickEvent, DialogAction, InputControl, SingleOptionInputControl, TextComponent, TextInputControl, TextTextComponent, DialogActionType } from "./types.js"
-import { $, createElement, decodeColor, readFormData, resolveTextComponents, resolveTooltip, shadowFor, stringifyTextComponents } from "./util.js"
+import { $, createElement, decodeColor, onTrigger, readFormData, resolveTextComponents, resolveTooltip, shadowFor, stringifyTextComponents } from "./util.js"
 import ValidationError from "./ValidationError.js"
 
 const DEFAULT_BUTTON_WIDTH = 150
@@ -33,6 +34,7 @@ export function previewDialog() {
 	const preview = $("#preview", "div")
 	let dialogData = readFormData(form)
 	preview.innerHTML = "" // Clear previous preview content
+	preview.ariaLabel = "Preview"
 
 	if (dialogData instanceof ValidationError) {
 		preview.classList.add("error")
@@ -52,6 +54,8 @@ export function previewDialog() {
 	const footer = createFooter(dialogData)
 	const tooltipContainer = createElement("div", { id: "tooltip-container" })
 	tooltip = createElement("div", { id: "tooltip" })
+
+	tooltipContainer.ariaHidden = "true"
 
 	window.addEventListener("mousemove", e => {
 		const guiScale = parseInt($("#gui-scale-input", "input").value, 10)
@@ -151,7 +155,7 @@ function createFooter(dialogData: any) {
 }
 
 function renderTextComponent(component: TextTextComponent, parent: BaseTextComponent): HTMLSpanElement {
-	console.log("text", component)
+	// console.log("text", component)
 	const element = createElement("span", { className: "text-component" })
 	const color  = component.color || parent.color || defaultTextComponent.color
 	const shadow = component.shadow_color || shadowFor(color)
@@ -169,14 +173,23 @@ function renderTextComponent(component: TextTextComponent, parent: BaseTextCompo
 	element.style.textDecoration = underlined ? "underline" : "none"
 	element.style.textDecoration += strikethrough ? " line-through" : ""
 	element.style.textShadow = `calc(var(--gui-scale) * 1px) calc(var(--gui-scale) * 1px) rgb(${shadowCss})`
+
+	if (component.hover_event) {
+		element.ariaLabel = component.text || ""
+		element.ariaDescription = stringifyTextComponents(resolveTooltip(component.hover_event))
+	} else {
+		element.ariaHidden = "true"
+	}
+
 	return element
 }
 
 function renderButton(action: DialogAction): HTMLButtonElement {
 	const label = resolveTextComponents(action.label)
 	const button = createElement("button", { className: "dialog-button" })
+
 	button.style.setProperty("--width", `${action.width || 150}px`) 
-	// console.log("Rendering button:", action)
+	button.type = "button"
 
 	renderTextComponents(button, label, true)
 
@@ -211,6 +224,8 @@ function renderTextComponents(element: HTMLElement, components: TextComponent | 
 
 		element.appendChild(span)
 	}
+
+	element.ariaLabel ??= stringifyTextComponents(resolvedComponents)
 }
 
 function handleTextClick(event: TextClickEvent) {
@@ -256,7 +271,6 @@ function renderInputs(inputs: InputControl[], element: HTMLElement) {
 	
 	for (const input of inputs) {
 		const inputElement = createElement("div", { className: "input-element" })
-		const inputField = createElement("input", {})
 
 		let labelText = input.label
 		if (!labelText || labelText.length == 0) {
@@ -275,6 +289,7 @@ function renderInputs(inputs: InputControl[], element: HTMLElement) {
 			if (index < 0) index = 0 // default to index 0
 
 			cycleButton.style.setProperty("--width", `${input.width || 200}px`)
+			cycleButton.type = "button"
 
 			function updateButtonLabel(input: SingleOptionInputControl) {
 				const option = options[index] ?? { id: "unknown", display: [{ type: "text", text: "" }] }
@@ -292,7 +307,8 @@ function renderInputs(inputs: InputControl[], element: HTMLElement) {
 			}
 
 			updateButtonLabel(input)
-			cycleButton.addEventListener("click", () => {
+
+			onTrigger(cycleButton, () => {
 				index = (index + 1) % options.length
 				updateButtonLabel(input)
 			})
@@ -335,9 +351,11 @@ function renderBooleanInput(input: BooleanInputControl, inputElement: HTMLDivEle
 	let checked = input.initial ?? false
 	checkbox.textContent = checked ? "✔" : ""
 	checkbox.tabIndex = 0 // Make it focusable
+	checkbox.ariaLabel = stringifyTextComponents(labelText)
+	checkbox.role = "checkbox"
 	renderTextComponents(label, labelText)
 
-	checkbox.addEventListener("click", () => {
+	onTrigger(checkbox, () => {
 		checked = !checked
 		checkbox.textContent = checked ? "✔" : ""
 	})
@@ -347,7 +365,7 @@ function renderBooleanInput(input: BooleanInputControl, inputElement: HTMLDivEle
 }
 
 function addClickHandler(element: HTMLElement, label: string, action: DialogActionType | TextClickEvent, target: "TextComponent" | "Button") {
-	element.addEventListener("click", () => {
+	onTrigger(element, () => {
 		if (target == "Button") console.log(`Button [${label}] clicked:`, action)
 		else if (target == "TextComponent") console.log(`Text "${label}" clicked:`, action)
 

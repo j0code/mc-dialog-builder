@@ -1,5 +1,5 @@
 import { BaseTextComponent, BooleanInputControl, TextClickEvent, DialogAction, InputControl, SingleOptionInputControl, TextComponent, TextInputControl, TextTextComponent, DialogActionType } from "./types.js"
-import { $, createElement, decodeColor, readFormData, resolveTextComponents, resolveTooltip, stringifyTextComponents } from "./util.js"
+import { $, createElement, decodeColor, readFormData, resolveTextComponents, resolveTooltip, shadowFor, stringifyTextComponents } from "./util.js"
 import ValidationError from "./ValidationError.js"
 
 const DEFAULT_BUTTON_WIDTH = 150
@@ -153,7 +153,8 @@ function createFooter(dialogData: any) {
 function renderTextComponent(component: TextTextComponent, parent: BaseTextComponent): HTMLSpanElement {
 	console.log("text", component)
 	const element = createElement("span", { className: "text-component" })
-	const shadow = component.shadow_color || [0, 0, 0, 1] // default shadow color if not provided   (TODO: use darkened color)
+	const color  = component.color || parent.color || defaultTextComponent.color
+	const shadow = component.shadow_color || shadowFor(color)
 	const shadowCss = `${shadow[0] * 255} ${shadow[1] * 255} ${shadow[2] * 255} / ${shadow[3] * 100}%`
 	const bold = component.bold ?? parent.bold ?? defaultTextComponent.bold
 	const italic = component.italic ?? parent.italic ?? defaultTextComponent.italic
@@ -162,7 +163,7 @@ function renderTextComponent(component: TextTextComponent, parent: BaseTextCompo
 
 	// console.log("Rendering component:", component, "with parent:", parent)
 	element.textContent = component.text || ""
-	element.style.color = decodeColor(component.color || parent.color || defaultTextComponent.color)
+	element.style.color = decodeColor(color)
 	element.style.fontWeight = bold ? "bold" : "normal"
 	element.style.fontStyle = italic ? "italic" : "normal"
 	element.style.textDecoration = underlined ? "underline" : "none"

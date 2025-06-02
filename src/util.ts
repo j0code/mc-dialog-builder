@@ -267,3 +267,23 @@ export function decodeColor(color: string) {
 	if (/^#([A-Fa-f0-9]{6})$/i.test(color)) return color // valid hex color
 	return "white"
 }
+
+export function hexToRgb(hex: string): [number, number, number] {
+	hex = hex.replace("#", "")
+
+	const num = parseInt(hex, 16)
+	return [
+		(num >> 16),
+		(num >> 8) & 255,
+		num & 255
+	]
+}
+
+export function shadowFor(color: string | undefined): [number, number, number, number] {
+	if (!color) return [0.75, 0.75, 0.75, 0.25] // darkened white
+
+	color = decodeColor(color)
+	const [r, g, b] = hexToRgb(color)
+
+	return [r / 255 * 0.75, g / 255 * 0.75, b / 255 * 0.75, 0.25]
+}

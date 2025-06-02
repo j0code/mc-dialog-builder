@@ -29,7 +29,7 @@
 		}
 	}
 
-	form > details > .children-container {
+	#dialog > .children-container {
 		background-color: rgba(97, 171, 175, 0.5) !important;
 	}
 }

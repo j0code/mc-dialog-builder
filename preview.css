@@ -21,6 +21,7 @@
 	font-size: var(--font-size);
 	font-family: sans-serif;
 	text-shadow: var(--text-shadow);
+	user-select: none;
 
 	&.error {
 		background-color: #b03030;

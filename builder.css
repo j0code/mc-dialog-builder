@@ -41,6 +41,10 @@
 	* {
 		outline-offset: 2px;
 	}
+
+	:has(> :user-invalid) {
+		color: red;
+	}
 }
 
 form,

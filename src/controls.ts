@@ -1,11 +1,12 @@
+import { saveSettings } from "./idb.js"
 import { previewDialog } from "./preview.js"
+import { Settings } from "./types.js"
 import { $, createElement, readFormData } from "./util.js"
 import ValidationError from "./ValidationError.js"
 
-const themes = ["default", "light", "dark", "mcstacker", "mcstacker-nostalgia"]
-const defaultGuiScale = 2
+export const THEMES = ["default", "light", "dark", "mcstacker", "mcstacker-nostalgia"] as const
 
-export function createControls(form: HTMLFormElement): HTMLDivElement {
+export function createControls(form: HTMLFormElement, settings: Settings): HTMLDivElement {
 	const controls = createElement("div", { id: "controls" })
 
 	const previewButton = createElement("button", { id: "preview-button" })
@@ -57,13 +58,13 @@ export function createControls(form: HTMLFormElement): HTMLDivElement {
 	const autoReloadLabel = createElement("label", { id: "auto-reload-label", textContent: "Auto-reload preview" })
 	const autoReloadCheckbox = createElement("input", { id: "auto-reload-checkbox" })
 	autoReloadCheckbox.type = "checkbox"
-	autoReloadCheckbox.checked = true
+	autoReloadCheckbox.checked = settings.autoReload
 	autoReloadLabel.appendChild(autoReloadCheckbox)
 
 	const highlightRequiredLabel = createElement("label", { id: "highlight-required-label", textContent: "Highlight required" })
 	const highlightRequiredCheckbox = createElement("input", { id: "highlight-required-checkbox" })
 	highlightRequiredCheckbox.type = "checkbox"
-	highlightRequiredCheckbox.checked = false
+	highlightRequiredCheckbox.checked = settings.highlightRequired
 	highlightRequiredLabel.appendChild(highlightRequiredCheckbox)
 
 	$("html").dataset.highlightRequired = "false"
@@ -74,15 +75,15 @@ export function createControls(form: HTMLFormElement): HTMLDivElement {
 	const themeLabel = createElement("label", { id: "theme-label", textContent: "Theme" })
 	const themeSelect = createElement("select", { id: "theme-select" })
 
-	themes.forEach(theme => {
+	THEMES.forEach(theme => {
 		const option = createElement("option", { value: theme, textContent: theme })
-		if (theme === "default") {
+		if (theme === settings.theme) {
 			option.selected = true
 		}
 		themeSelect.appendChild(option)
 	})
 
-	$("html").dataset.theme = "default"
+	$("html").dataset.theme = settings.theme
 	themeSelect.addEventListener("change", () => {
 		const selectedTheme = themeSelect.value
 		$("html").dataset.theme = selectedTheme
@@ -97,15 +98,20 @@ export function createControls(form: HTMLFormElement): HTMLDivElement {
 	guiScaleInput.min = "1"
 	guiScaleInput.max = "5"
 	guiScaleInput.step = "1"
-	guiScaleInput.value = defaultGuiScale.toString()
+	guiScaleInput.value = settings.guiScale.toString()
 
-	$("html").style.setProperty("--gui-scale", defaultGuiScale.toString())
+	$("html").style.setProperty("--gui-scale", settings.guiScale.toString())
 	guiScaleInput.addEventListener("change", () => {
 		const scale = parseInt(guiScaleInput.value, 10)
 		setGuiScale(scale)
 	})
 
 	guiScaleLabel.appendChild(guiScaleInput)
+
+	highlightRequiredCheckbox.addEventListener("change", saveCurrentSettings)
+	themeSelect.addEventListener("change", saveCurrentSettings)
+	guiScaleInput.addEventListener("change", saveCurrentSettings)
+	autoReloadCheckbox.addEventListener("change", saveCurrentSettings)
 
 	controls.appendChild(previewButton)
 	controls.appendChild(copyButton)
@@ -125,4 +131,17 @@ function setGuiScale(scale: number): void {
 
 	$("#gui-scale-input", "input").value = scale.toString()
 	$("html").style.setProperty("--gui-scale", scale.toString())
+}
+
+function getCurrentSettings(): Omit<Settings, "uiRatio"> {
+	return {
+		highlightRequired: $("#highlight-required-checkbox", "input").checked,
+		theme: $("#theme-select", "select").value as typeof THEMES[number],
+		guiScale: parseInt($("#gui-scale-input", "input").value, 10),
+		autoReload: $("#auto-reload-checkbox", "input").checked
+	}
+}
+
+function saveCurrentSettings() {
+	saveSettings(getCurrentSettings())
 }

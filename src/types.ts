@@ -1,4 +1,13 @@
 import { type RegistryKey } from "./registries.js"
+import { type THEMES } from "./controls.js"
+
+export type Settings = {
+	autoReload: boolean,
+	highlightRequired: boolean,
+	theme: typeof THEMES[number],
+	guiScale: number,
+	uiRatio: number
+}
 
 export type NBTValue =
 	| NBTCompound | NBTList | NBTTuple | NBTSelect | NBTString

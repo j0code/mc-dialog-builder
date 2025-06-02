@@ -276,3 +276,24 @@ export type NumberRangeInputControl = BaseInputControl & {
 }
 
 export type InputControl = TextInputControl | BooleanInputControl | SingleOptionInputControl | NumberRangeInputControl
+
+export type BodyElement = {
+	type: "minecraft:plain_message",
+	contents: TextComponent[],
+	width?: number
+} | {
+	type: "minecraft:item",
+	item: {
+		id: string,
+		count?: number,
+		components?: Record<string, any>
+	},
+	description?: {
+		contents: TextComponent[],
+		width?: number
+	},
+	show_decoration?: boolean,
+	show_tooltip?: boolean,
+	width?: number,
+	height?: number
+}

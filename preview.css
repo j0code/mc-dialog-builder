@@ -74,6 +74,41 @@
 	}
 }
 
+.preview-body-element[data-type="minecraft:item"] {
+	display: flex;
+	flex-direction: row;
+	gap: calc(var(--gui-scale) * 3px);
+	align-items: center;
+}
+
+.preview-body-element[data-type="minecraft:item"]
+.preview-body-element-item {
+	width:  calc(var(--width) * var(--gui-scale));
+	height: calc(var(--height) * var(--gui-scale));
+	border: 1px dashed white;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	&::after {
+		content: attr(data-count);
+		text-shadow: calc(var(--gui-scale) * 1px) calc(var(--gui-scale) * 1px) rgb(191 191 191 / 25%);
+		translate: calc(var(--width) * var(--gui-scale) * 0.4) calc(var(--height) * var(--gui-scale) * 0.3);
+	}
+}
+
+.preview-body-element-text {
+	width: calc(var(--width) * var(--gui-scale));
+}
+
+.preview-body-element[data-type="minecraft:plain_message"]
+.preview-body-element-text {
+	text-align: center;
+	overflow-wrap: break-word;
+	word-break: break-word;
+	white-space: normal;
+}
+
 #action-grid {
 	display: flex;
 	flex-direction: column;

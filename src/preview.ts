@@ -1,5 +1,4 @@
-import text from "./data/text_component_type/text.js"
-import { BaseTextComponent, BooleanInputControl, TextClickEvent, DialogAction, InputControl, SingleOptionInputControl, TextComponent, TextInputControl, TextTextComponent, DialogActionType } from "./types.js"
+import { BaseTextComponent, BooleanInputControl, TextClickEvent, DialogAction, InputControl, SingleOptionInputControl, TextComponent, TextInputControl, TextTextComponent, DialogActionType, BodyElement } from "./types.js"
 import { $, createElement, decodeColor, onTrigger, readFormData, resolveTextComponents, resolveTooltip, shadowFor, stringifyTextComponents } from "./util.js"
 import ValidationError from "./ValidationError.js"
 
@@ -84,15 +83,8 @@ function createHeader(title: string) {
 function createBody(dialogData: any) {
 	const element = createElement("div", { id: "preview-body" })
 
-	for (const elem of dialogData.body || []) {
-		const bodyElement = createElement("p", { className: "preview-body-element" })
-
-		if (elem.type == "minecraft:plain_message") {
-			// console.log("Rendering plain message:", elem)
-			renderTextComponents(bodyElement, elem.contents || [])
-		} // TODO: minecraft:item
-
-		element.appendChild(bodyElement)
+	if (dialogData.body ?? dialogData.body.length > 0) {
+		renderBodyElements(element, dialogData.body)
 	}
 
 	if ("inputs" in dialogData && Array.isArray(dialogData.inputs)) {
@@ -398,4 +390,48 @@ function renderTooltip(text: TextComponent[]) {
 
 function hideTooltip() {
 	tooltip.classList.remove("visible")
+}
+
+function renderBodyElements(parent: HTMLElement, body: BodyElement[]) {
+	for (const elem of body) {
+		const bodyElement = createElement("div", { className: "preview-body-element" })
+
+		if (elem.type == "minecraft:plain_message") {
+			const text = createElement("p", { className: "preview-body-element-text" })
+
+			bodyElement.dataset.type = elem.type
+			if (elem.width) text.style.setProperty("--width",  `${elem.width}px`)
+			renderTextComponents(text, elem.contents || [])
+
+			bodyElement.appendChild(text)
+		} else if (elem.type == "minecraft:item") {
+			const itemDiv = createElement("div", { className: "preview-body-element-item" })
+			const descSpan = createElement("div", { className: "preview-body-element-text" })
+
+			let labelText = elem.description?.contents
+			if (!labelText || labelText.length == 0) {
+				labelText = [{ type: "text", text: "Missing label" }]
+			}
+
+			bodyElement.dataset.type = elem.type
+
+			if (elem.width)  itemDiv.style.setProperty("--width",  `${elem.width}px`)
+			if (elem.height) itemDiv.style.setProperty("--height", `${elem.height}px`)
+
+			if (elem.show_tooltip ?? true) addTooltip(itemDiv, resolveTooltip({ action: "show_item", ...elem.item }))
+
+			if ((elem.show_decoration ?? true) && elem.item.count && elem.item.count > 1) {
+				itemDiv.dataset.count = elem.item.count.toString()
+			}
+
+			bodyElement.appendChild(itemDiv)
+
+			if (elem.description) {
+				renderTextComponents(descSpan, labelText)
+				bodyElement.appendChild(descSpan)
+			}
+		}
+
+		parent.appendChild(bodyElement)
+	}
 }

@@ -118,10 +118,50 @@ function createNestedInput(id: string, name: string, def: NBTCompound | NBTList 
 		element.dataset.included = "true"
 	}
 
+	if (def.tooltip) {
+		const { tooltipButton, tooltipDialog } = createTooltip(id, def)!
+
+		element.appendChild(tooltipDialog)
+		headerBar.appendChild(tooltipButton)
+	}
+
 	element.appendChild(headerBar)
 	element.appendChild(childrenContainer)
 
 	return { element, headerBar, childrenContainer }
+}
+
+function createTooltip(id: string, def: NBTCompound | NBTList | NBTTuple) {
+	if (!def.tooltip) return null
+
+	const tooltipButton = createHeaderBarButton("Tooltip", "info")
+	const tooltipDialog = createElement("dialog", { 
+		className: "tooltip-dialog",
+	})
+	const title = createElement("h3", { id: `${id}-tooltip-title`, textContent: def.tooltip.title })
+	const description = createElement("div", {})
+
+	tooltipDialog.role = "tooltip"
+	tooltipDialog.ariaLabel = def.tooltip.title
+	
+	description.append(...def.tooltip.description.map(text => 
+		createElement("p", { textContent: text })
+	))
+	
+	tooltipDialog.append(title, description)
+
+	// @ts-expect-error limited availability feature
+	tooltipButton.style["anchor-name"] = `--${id}-tooltip`
+	// @ts-expect-error widely available feature, but ts is behind
+	tooltipDialog.closedBy = "any"
+	
+	onTrigger(tooltipButton, () => {
+		// @ts-expect-error limited availability feature
+		tooltipDialog.style["position-anchor"] = `--${id}-tooltip`
+		tooltipDialog.showModal()
+	})
+
+	return { tooltipButton, tooltipDialog }
 }
 
 function createCompoundInput(id: string, name: string, def: NBTCompound, evenChild: boolean, removable: boolean = false) {

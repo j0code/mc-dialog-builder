@@ -108,7 +108,8 @@
 			height: 1.5em;
 		}
 
-		&.add-item {
+		&.add-item,
+		&.info {
 			border-radius: 1em;
 		}
 
@@ -126,6 +127,10 @@
 
 		&.exclude-item > div {
 			mask-image: url("./icons/exclude-item.svg");
+		}
+
+		&.info > div {
+			mask-image: url("./icons/info.svg");
 		}
 	}
 }
@@ -160,4 +165,37 @@ html[data-highlight-required="true"] {
 	[data-labels-required="true"] {
 		color: red;
 	}
+}
+
+.tooltip-dialog {
+	margin: 0;
+	padding: 10px 12px 6px 12px;
+	border: var(--tooltip-border);
+	border-radius: 4px;
+	background: var(--tooltip-bg-color);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	max-width: 25vw;
+	position: fixed;
+	top: anchor(top);
+	left: anchor(right);
+	translate: 8px 0;
+	color: var(--builder-text-color);
+
+	&:focus, &:focus-visible {
+		outline: none;
+	}
+}
+
+.tooltip-dialog::backdrop {
+	background: transparent;
+}
+
+.tooltip-dialog h3 {
+	margin: 0;
+	font-size: 1em;
+}
+
+.tooltip-dialog p {
+	margin: 4px 0;
+	font-size: 0.9em;
 }

@@ -7,6 +7,8 @@
 	--builder-input-bg-color: field;
 	--builder-input-text-color: var(--builder-text-color);
 	--builder-input-border-color: light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
+	--tooltip-bg-color: light-dark(#e0e0e2, #38383a);
+	--tooltip-border: 1px solid var(--builder-input-border-color);
 }
 
 :root[data-theme="light"] {

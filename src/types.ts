@@ -9,6 +9,11 @@ export type Settings = {
 	uiRatio: number
 }
 
+export type Tooltip = {
+	title: string,
+	description: string[]
+}
+
 export type NBTValue =
 	| NBTCompound | NBTList | NBTTuple | NBTSelect | NBTString
 	| NBTNumber | NBTBoolean | NBTTextComponent | NBTTextClickAction
@@ -20,12 +25,14 @@ export type NBTCompound = {
 		[key: string]: NBTValue
 	},
 	required?: boolean,
+	tooltip?: Tooltip,
 }
 
 export type NBTList = {
 	type: "list",
 	elementType: NBTValue,
 	required?: boolean,
+	tooltip?: Tooltip,
 }
 
 export type NBTTuple = {
@@ -33,12 +40,14 @@ export type NBTTuple = {
 	elementType: NBTValue,
 	labels: string[],
 	required?: boolean,
+	tooltip?: Tooltip,
 }
 
 export type NBTSelect = {
 	type: "select",
 	registry: RegistryKey,
 	required?: boolean,
+	tooltip?: Tooltip,
 }
 
 export type NBTString = {
@@ -46,6 +55,7 @@ export type NBTString = {
 	default?: string,
 	placeholder?: string,
 	required?: boolean,
+	tooltip?: Tooltip,
 }
 
 export type NBTNumber = {
@@ -55,12 +65,14 @@ export type NBTNumber = {
 	max?: number,
 	step?: number,
 	required?: boolean,
+	tooltip?: Tooltip,
 }
 
 export type NBTBoolean = {
 	type: "boolean",
 	default?: boolean,
 	required?: boolean,
+	tooltip?: Tooltip,
 }
 
 export type NBTTextComponent = {

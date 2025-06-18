@@ -7,6 +7,8 @@
 	--builder-input-bg-color: white;
 	--builder-input-text-color: black;
 	--builder-input-border-color: #767676;
+	--tooltip-bg-color: #ff6;
+	--tooltip-border: 2px solid #000000;
 
 	--even-bg: #ffd;
 	--odd-bg: #FFD783;
@@ -31,5 +33,9 @@
 
 	#dialog > .children-container {
 		background-color: rgba(97, 171, 175, 0.5) !important;
+	}
+
+	.tooltip-dialog {
+		border-radius: 0px;
 	}
 }

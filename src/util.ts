@@ -70,19 +70,15 @@ export function readFormElements(elements: Element[], array: boolean = false): R
 			}
 		} else if (element instanceof HTMLDivElement && element.dataset.type) { // compound, list, tuple
 			if (element.dataset.type == "compound") { // compound
+				if (element.dataset.included == "false") continue
 				const compoundData = readFormCompoundData(element)
-				if (Object.keys(compoundData).length == 0) {
-					if (element.dataset.required == "true") {
-						throw new ValidationError("%s is required!", element.id)
-					} else {
-						continue
-					}
-				}
-				data[element.dataset.key!] = readFormCompoundData(element)
+				
+				data[element.dataset.key!] = compoundData
 			} else { // list or tuple
+				if (element.dataset.included == "false") continue
 				const childrenContainer = element.children[1]
 				const children = Array.from(childrenContainer.children)
-				if (element.dataset.required == "false" && children.length == 0) continue
+				
 				data[element.dataset.key!] = readFormElements(children, true) ?? []
 			}
 		}

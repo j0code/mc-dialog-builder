@@ -111,6 +111,21 @@ function createCompoundInput(id: string, name: string, def: NBTCompound, evenChi
 		headerBar.appendChild(removeButton)
 	}
 
+	if (!def.required && !removable) {
+		element.dataset.included = "false"
+		const includeButton = createHeaderBarButton("Include", "include-item")
+		onTrigger(includeButton, () => {
+			const included = element.dataset.included == "false"
+			element.dataset.included = included + ""
+			includeButton.ariaLabel = included ? "Exclude" : "Include"
+			includeButton.classList.toggle("include-item", !included)
+			includeButton.classList.toggle("exclude-item",  included)
+		})
+		headerBar.appendChild(includeButton)
+	} else {
+		element.dataset.included = "true"
+	}
+
 	// console.log("!§", id, def.children, def.required)
 	if ("type" in def.children && def.children.type.type == "select" && def.children.type.required) {
 		const registry = getRegistry(def.children.type.registry)
@@ -203,6 +218,21 @@ function createListInput(id: string, name: string, def: NBTList, evenChild: bool
 	element.role = "group"
 	element.ariaLabel = name
 
+	if (!def.required) {
+		element.dataset.included = "false"
+		const includeButton = createHeaderBarButton("Include", "include-item")
+		onTrigger(includeButton, () => {
+			const included = element.dataset.included == "false"
+			element.dataset.included = included + ""
+			includeButton.ariaLabel = included ? "Exclude" : "Include"
+			includeButton.classList.toggle("include-item", !included)
+			includeButton.classList.toggle("exclude-item",  included)
+		})
+		headerBar.appendChild(includeButton)
+	} else {
+		element.dataset.included = "true"
+	}
+
 	function addItem() {
 		const index = childrenContainer.childElementCount
 		let elementType = structuredClone(def.elementType)
@@ -270,6 +300,21 @@ function createTupleInput(id: string, name: string, def: NBTTuple, evenChild: bo
 	element.role = "group"
 	element.ariaLabel = name
 
+	if (!def.required) {
+		element.dataset.included = "false"
+		const includeButton = createHeaderBarButton("Include", "include-item")
+		onTrigger(includeButton, () => {
+			const included = element.dataset.included == "false"
+			element.dataset.included = included + ""
+			includeButton.ariaLabel = included ? "Exclude" : "Include"
+			includeButton.classList.toggle("include-item", !included)
+			includeButton.classList.toggle("exclude-item",  included)
+		})
+		headerBar.appendChild(includeButton)
+	} else {
+		element.dataset.included = "true"
+	}
+
 	for (let i = 0; i < def.labels.length; i++) {
 		const label = def.labels[i]
 		const inputElement = createListItemInput(id, i, def.elementType, evenChild, label)
@@ -292,6 +337,8 @@ function createHeaderBar(owner: HTMLElement, name: string, open: boolean) {
 	nameElement.tabIndex = 0 // make it focusable
 
 	function toggleOpen() {
+		if (owner.dataset.included == "false") return
+
 		owner.classList.toggle("open")
 		nameElement.ariaLabel = owner.classList.contains("open") ? "close" : "open"
 	}

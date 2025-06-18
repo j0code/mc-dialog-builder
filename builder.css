@@ -47,7 +47,7 @@
 	}
 }
 
-form,
+#mc-dialog-builder,
 .nesting-input {
 	display: flex;
 	flex-direction: column;
@@ -63,7 +63,7 @@ form,
 	content: "▼";
 }
 
-form {
+#mc-dialog-builder {
 	padding: 25px;
 	font-family: monospace;
 	font-size: 16px;

@@ -186,6 +186,15 @@
     justify-content: center;
 	font-size: calc(15px * var(--gui-scale));
 	user-select: none;
+	appearance: none;
+
+	&.checked::before {
+		content: "✔";
+	}
+}
+
+.input-element > .input-single-option-mirror {
+	display: none;
 }
 
 .input-element > textarea {

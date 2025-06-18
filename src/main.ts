@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	await createDraggableBorder(builderContainer)
 
-	const preview = createElement("div", { id: "preview" })
+	const preview = createElement("form", { id: "preview" })
 	document.body.appendChild(preview)
 	previewDialog()
 })

@@ -30,7 +30,7 @@ let tooltip: HTMLDivElement
 
 export function previewDialog() {
 	const form = $("#mc-dialog-builder", "form")
-	const preview = $("#preview", "div")
+	const preview = $("#preview", "form")
 	let dialogData = readFormData(form)
 	preview.innerHTML = "" // Clear previous preview content
 	preview.ariaLabel = "Preview"
@@ -83,7 +83,7 @@ function createHeader(title: string) {
 function createBody(dialogData: any) {
 	const element = createElement("div", { id: "preview-body" })
 
-	if (dialogData.body ?? dialogData.body.length > 0) {
+	if (dialogData.body && dialogData.body.length > 0) {
 		renderBodyElements(element, dialogData.body)
 	}
 
@@ -244,14 +244,14 @@ function handleTextClick(event: TextClickEvent) {
 }
 
 function handleDialogClick(action: DialogActionType) {
-	// TODO: extract info from inputs
+	const data = new FormData($("#preview", "form"))
 
 	if (action.type == "minecraft:dynamic/run_command") {
-		// TODO: show expanded template
-		console.log(`click ${action.type}:`, action.template) 
+		const cmd = action.template ? expandMacros(action.template, data) : ""
+		console.log(`click ${action.type}:`, cmd) 
 	} else if (action.type == "minecraft:dynamic/custom") {
-		// TODO: show inputs
-		console.log(`click ${action.type}:`, `(${action.id})`, action.additions) 
+		const payload = Object.fromEntries(data)
+		console.log(`click ${action.type}:`, `(${action.id})`, { ...payload, ...action.additions, action: action.id }) 
 	} else {
 		const event = { ...action, action: action.type.substring(10) } as TextClickEvent // convert (key change, remove minecraft:)
 		handleTextClick(event)
@@ -276,12 +276,15 @@ function renderInputs(inputs: InputControl[], element: HTMLElement) {
 			
 		} else if (input.type == "minecraft:single_option") {
 			const cycleButton = createElement("button", { className: "input-single-option" })
+			const mirror = createElement("input", { className: "input-single-option-mirror" })
 			const options = input.options || []
 			let index = options.findIndex(opt => opt.initial)
 			if (index < 0) index = 0 // default to index 0
 
 			cycleButton.style.setProperty("--width", `${input.width || 200}px`)
 			cycleButton.type = "button"
+			mirror.name  = input.key
+			mirror.value = input.options[index].id
 
 			function updateButtonLabel(input: SingleOptionInputControl) {
 				const option = options[index] ?? { id: "unknown", display: [{ type: "text", text: "" }] }
@@ -302,10 +305,12 @@ function renderInputs(inputs: InputControl[], element: HTMLElement) {
 
 			onTrigger(cycleButton, () => {
 				index = (index + 1) % options.length
+				mirror.value = input.options[index].id
 				updateButtonLabel(input)
 			})
 			
 			inputElement.appendChild(cycleButton)
+			inputElement.appendChild(mirror)
 
 		}
 		
@@ -318,7 +323,8 @@ function renderInputs(inputs: InputControl[], element: HTMLElement) {
 function renderTextInput(input: TextInputControl, inputElement: HTMLDivElement, labelText: TextComponent[]) {
 	const label = createElement("label", { className: "input-label" })
 	const inputField = createElement(input.multiline ? "textarea" : "input", {})
-			
+	
+	inputField.name = input.key
 	inputField.value = (input.initial || "") + ""
 	inputField.maxLength = input.max_length || 15
 	renderTextComponents(label, labelText)
@@ -338,18 +344,26 @@ function renderTextInput(input: TextInputControl, inputElement: HTMLDivElement, 
 
 function renderBooleanInput(input: BooleanInputControl, inputElement: HTMLDivElement, labelText: TextComponent[]) {
 	const label = createElement("label", { className: "input-label" })
-	const checkbox = createElement("div", { className: "input-checkbox" })
+	const checkbox = createElement("input", { className: "input-checkbox" })
 	
 	let checked = input.initial ?? false
-	checkbox.textContent = checked ? "✔" : ""
+	const onFalse = input.on_false || "false"
+	const onTrue  = input.on_true  || "true"
+	checkbox.name = input.key
+	checkbox.checked = true // has to be true or else FormData() drops the value
+	checkbox.value = checked ? onTrue : onFalse
+	checkbox.classList.toggle("checked", checked)
+	checkbox.type = "checkbox"
 	checkbox.tabIndex = 0 // Make it focusable
 	checkbox.ariaLabel = stringifyTextComponents(labelText)
-	checkbox.role = "checkbox"
+	checkbox.id = "preview-input-" + (input.key || Math.random().toString(16).substring(2))
 	renderTextComponents(label, labelText)
+	label.htmlFor = checkbox.id
 
 	onTrigger(checkbox, () => {
 		checked = !checked
-		checkbox.textContent = checked ? "✔" : ""
+		checkbox.value = checked ? onTrue : onFalse
+		checkbox.classList.toggle("checked", checked)
 	})
 	
 	inputElement.appendChild(checkbox)
@@ -434,4 +448,19 @@ function renderBodyElements(parent: HTMLElement, body: BodyElement[]) {
 
 		parent.appendChild(bodyElement)
 	}
+}
+
+function expandMacros(macro: string, data: FormData) {
+	const macroRegex = /\$\(([^)]+)\)/g;
+
+	return macro.replace(macroRegex, (match, key) => {
+		if (!/^[a-zA-Z0-9_]+$/.test(key)) {
+			throw new Error(`Invalid macro key '${key}' in '${match}'. Keys can only contain letters, digits, and underscores.`)
+		}
+
+		const value = data.get(key)
+		if (typeof value != "string") return ""
+
+		return value
+	})
 }

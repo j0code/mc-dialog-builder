@@ -110,7 +110,7 @@ function extractBaseTextComponentProps(component: TextComponent): Omit<BaseTextC
 	return base
 }
 
-function resolveTextComponent(component: TextComponent): TextTextComponent | TextTextComponent[] { // TODO: keep formatting
+function resolveTextComponent(component: TextComponent): TextTextComponent | TextTextComponent[] {
 	// console.log("resolveTextComponent", component)
 	const base = extractBaseTextComponentProps(component)
 
@@ -152,7 +152,7 @@ export function stringifyTextComponents(components: TextComponent | TextComponen
 	return resolveTextComponents(components).map(comp => comp.text).join("")
 }
 
-function createPlayerNameComponent(name: string, base: Omit<BaseTextComponent, "type">): TextTextComponent { // TODO: add tooltip
+function createPlayerNameComponent(name: string, base: Omit<BaseTextComponent, "type">): TextTextComponent {
 	const uuid = crypto.randomUUID()
 	const tooltip = resolveTooltip({ action: "show_entity", name: [{type: "text", text: name}], id: "minecraft:player", uuid })
 

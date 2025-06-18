@@ -91,25 +91,17 @@ function createBooleanInput(id: string, def: NBTBoolean) {
 
 }
 
-function createCompoundInput(id: string, name: string, def: NBTCompound, evenChild: boolean, removable: boolean = false) {
+function createNestedInput(id: string, name: string, def: NBTCompound | NBTList | NBTTuple, evenChild: boolean, removable: boolean) {
 	const element = createElement("div", { id, className: "nesting-input" })
 	const headerBar = createHeaderBar(element, name, def.required ?? false)
 	const childrenContainer = createElement("div", { className: "children-container" })
-	const genericChildren = createElement("div", { className: "compound-input-generic-children" })
-	const specificChildren = createElement("div", { className: "compound-input-specific-children" })
 
 	element.classList.toggle("open", def.required ?? false) // collapse if optional
-	element.dataset.type = "compound"
+	element.dataset.type = def.type
 	element.dataset.required = (def.required ?? false)+""
 	element.classList.add(evenChild ? "even-child" : "odd-child")
 	element.role = "group"
 	element.ariaLabel = name
-
-	if (removable) {
-		const removeButton = createHeaderBarButton("Remove item", "remove-item")
-		onTrigger(removeButton, () => element.remove())
-		headerBar.appendChild(removeButton)
-	}
 
 	if (!def.required && !removable) {
 		element.dataset.included = "false"
@@ -124,6 +116,23 @@ function createCompoundInput(id: string, name: string, def: NBTCompound, evenChi
 		headerBar.appendChild(includeButton)
 	} else {
 		element.dataset.included = "true"
+	}
+
+	element.appendChild(headerBar)
+	element.appendChild(childrenContainer)
+
+	return { element, headerBar, childrenContainer }
+}
+
+function createCompoundInput(id: string, name: string, def: NBTCompound, evenChild: boolean, removable: boolean = false) {
+	const { element, headerBar, childrenContainer } = createNestedInput(id, name, def, evenChild, removable)
+	const genericChildren = createElement("div", { className: "compound-input-generic-children" })
+	const specificChildren = createElement("div", { className: "compound-input-specific-children" })
+
+	if (removable) {
+		const removeButton = createHeaderBarButton("Remove item", "remove-item")
+		onTrigger(removeButton, () => element.remove())
+		headerBar.appendChild(removeButton)
 	}
 
 	// console.log("!§", id, def.children, def.required)
@@ -141,10 +150,9 @@ function createCompoundInput(id: string, name: string, def: NBTCompound, evenChi
 
 	setCompoundChildren(id, def, genericChildren, def.children, specificChildren, evenChild)
 
-	element.appendChild(headerBar)
 	childrenContainer.appendChild(genericChildren)
 	childrenContainer.appendChild(specificChildren)
-	element.appendChild(childrenContainer)
+
 	return element
 }
 
@@ -205,33 +213,9 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 	}
 }
 
-function createListInput(id: string, name: string, def: NBTList, evenChild: boolean) {
-	const element = createElement("div", { id, className: "nesting-input" })
-	const headerBar = createHeaderBar(element, name, def.required ?? false)
-	const childrenContainer = createElement("div", { className: "children-container" })
+function createListInput(id: string, name: string, def: NBTList, evenChild: boolean, removable: boolean = false) {
+	const { element, headerBar, childrenContainer } = createNestedInput(id, name, def, evenChild, removable)
 	const addButton = createHeaderBarButton("Add item", "add-item")
-
-	element.classList.toggle("open", def.required ?? false) // collapse if optional
-	element.dataset.type = "list"
-	element.dataset.required = (def.required ?? false)+""
-	element.classList.add(evenChild ? "even-child" : "odd-child")
-	element.role = "group"
-	element.ariaLabel = name
-
-	if (!def.required) {
-		element.dataset.included = "false"
-		const includeButton = createHeaderBarButton("Include", "include-item")
-		onTrigger(includeButton, () => {
-			const included = element.dataset.included == "false"
-			element.dataset.included = included + ""
-			includeButton.ariaLabel = included ? "Exclude" : "Include"
-			includeButton.classList.toggle("include-item", !included)
-			includeButton.classList.toggle("exclude-item",  included)
-		})
-		headerBar.appendChild(includeButton)
-	} else {
-		element.dataset.included = "true"
-	}
 
 	function addItem() {
 		const index = childrenContainer.childElementCount
@@ -244,9 +228,8 @@ function createListInput(id: string, name: string, def: NBTList, evenChild: bool
 	onTrigger(addButton, addItem)
 
 	headerBar.appendChild(addButton)
-	element.appendChild(headerBar)
-	element.appendChild(childrenContainer)
-	if (def.required) addItem()
+	if (def.required) addItem() // TODO: only if required to be non-empty
+
 	return element
 }
 
@@ -286,34 +269,10 @@ function createListItemInput(parentId: string, index: number, elementType: NBTLi
 	return label
 }
 
-function createTupleInput(id: string, name: string, def: NBTTuple, evenChild: boolean) {
-	const element = createElement("div", { id, className: "nesting-input" })
-	const headerBar = createHeaderBar(element, name, def.required ?? false)
-	const childrenContainer = createElement("div", { className: "children-container" })
+function createTupleInput(id: string, name: string, def: NBTTuple, evenChild: boolean, removable: boolean = false) {
+	const { element, headerBar, childrenContainer } = createNestedInput(id, name, def, evenChild, removable)
 
-	console.log("Creating tuple input for", id, name, def)
-	
-	element.classList.toggle("open", def.required ?? false) // collapse if optional
-	element.dataset.type = "tuple"
-	element.classList.add(evenChild ? "even-child" : "odd-child")
-	element.appendChild(headerBar)
-	element.role = "group"
-	element.ariaLabel = name
-
-	if (!def.required) {
-		element.dataset.included = "false"
-		const includeButton = createHeaderBarButton("Include", "include-item")
-		onTrigger(includeButton, () => {
-			const included = element.dataset.included == "false"
-			element.dataset.included = included + ""
-			includeButton.ariaLabel = included ? "Exclude" : "Include"
-			includeButton.classList.toggle("include-item", !included)
-			includeButton.classList.toggle("exclude-item",  included)
-		})
-		headerBar.appendChild(includeButton)
-	} else {
-		element.dataset.included = "true"
-	}
+	// console.log("Creating tuple input for", id, name, def)
 
 	for (let i = 0; i < def.labels.length; i++) {
 		const label = def.labels[i]
@@ -321,8 +280,6 @@ function createTupleInput(id: string, name: string, def: NBTTuple, evenChild: bo
 
 		childrenContainer.appendChild(inputElement)
 	}
-
-	element.appendChild(childrenContainer)
 
 	return element
 }

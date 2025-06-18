@@ -398,7 +398,7 @@ function addTooltip(element: HTMLElement, tooltip: TextComponent[]) {
 function renderTooltip(text: TextComponent[]) {
 	tooltip.innerHTML = ""
 	renderTextComponents(tooltip, text)
-	console.log("tooltip", text)
+	// console.log("tooltip", text)
 	if (tooltip.innerText.length > 0) tooltip.classList.add("visible")
 }
 
@@ -409,11 +409,11 @@ function hideTooltip() {
 function renderBodyElements(parent: HTMLElement, body: BodyElement[]) {
 	for (const elem of body) {
 		const bodyElement = createElement("div", { className: "preview-body-element" })
+		bodyElement.dataset.type = elem.type
 
 		if (elem.type == "minecraft:plain_message") {
 			const text = createElement("p", { className: "preview-body-element-text" })
 
-			bodyElement.dataset.type = elem.type
 			if (elem.width) text.style.setProperty("--width",  `${elem.width}px`)
 			renderTextComponents(text, elem.contents || [])
 
@@ -426,8 +426,6 @@ function renderBodyElements(parent: HTMLElement, body: BodyElement[]) {
 			if (!labelText || labelText.length == 0) {
 				labelText = [{ type: "text", text: "Missing label" }]
 			}
-
-			bodyElement.dataset.type = elem.type
 
 			if (elem.width)  itemDiv.style.setProperty("--width",  `${elem.width}px`)
 			if (elem.height) itemDiv.style.setProperty("--height", `${elem.height}px`)

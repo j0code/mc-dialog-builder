@@ -156,21 +156,54 @@ function createCompoundInput(id: string, name: string, def: NBTCompound, evenChi
 	return element
 }
 
+function createNestedChild(parentId: string, key: string, childDef: NBTValue, evenChild: boolean, labelText: string = key, removable: boolean = false) {
+	let inputElement: HTMLElement
+
+	if (childDef.type in specialTypeMapping) {
+		const key = childDef.type as keyof typeof specialTypeMapping
+		const required = "required" in childDef && childDef.required
+		childDef = { ...specialTypeMapping[key] }
+		childDef.required ??= required
+	}
+
+	if (childDef.type === "select") {
+		inputElement = createSelect(`${parentId}-${key}`, getRegistry(childDef.registry).keys().toArray().map(value => ({ value })), childDef.required ?? false) // Placeholder for options, should be filled with actual data
+	} else if (childDef.type === "string") {
+		inputElement = createStringInput(`${parentId}-${key}`, childDef)
+	} else if (childDef.type === "number") {
+		inputElement = createNumberInput(`${parentId}-${key}`, childDef)
+	} else if (childDef.type === "boolean") {
+		inputElement = createBooleanInput(`${parentId}-${key}`, childDef)
+	} else if (childDef.type === "compound") {
+		inputElement = createCompoundInput(`${parentId}-${key}`, key, childDef, !evenChild, removable)
+	} else if (childDef.type === "list") {
+		inputElement = createListInput(`${parentId}-${key}`, key, childDef, !evenChild)
+	} else if (childDef.type === "tuple") {
+		inputElement = createTupleInput(`${parentId}-${key}`, key, childDef, !evenChild)
+	} else {
+		throw new Error(`Unsupported type: ${childDef.type}`)
+	}
+
+	inputElement.dataset.key = key
+
+	if (["compound", "list", "tuple"].includes(childDef.type)) {
+		return inputElement
+	}
+
+	const label = createElement("label", {})
+	label.textContent = labelText
+	label.ariaLabel = labelText
+	if (childDef.required != undefined) label.dataset.labelsRequired = childDef.required+""
+	label.appendChild(inputElement)
+
+	return label
+}
+
 function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: HTMLDivElement, children: Record<string, NBTValue>, specificChildrenElement: HTMLDivElement, evenChild: boolean) {
 	for (let [key, childDef] of Object.entries(children)) {
-		let inputElement: HTMLElement
+		const inputElement = createNestedChild(parentId, key, childDef, evenChild)
 
-		if (childDef.type in specialTypeMapping) {
-			const key = childDef.type as keyof typeof specialTypeMapping
-			const required = "required" in childDef && childDef.required
-			childDef = { ...specialTypeMapping[key] }
-			// console.log("mapping type", childDef.type, childDef.required, required, parentId, key)
-			childDef.required ??= required
-		}
-
-		if (childDef.type === "select") {
-			console.log(parentId, childDef.registry)
-			inputElement = createSelect(`${parentId}-${key}`, getRegistry(childDef.registry).keys().toArray().map(value => ({ value })), childDef.required ?? false) // Placeholder for options, should be filled with actual data
+		if (childDef.type == "select") {
 			if (key == "type" || key == "action") {
 				inputElement.addEventListener("change", (event) => {
 					const selectElement = event.target as HTMLSelectElement
@@ -181,35 +214,9 @@ function setCompoundChildren(parentId: string, parentDef: NBTCompound, element: 
 					if (entry) setCompoundChildren(parentId, parentDef, specificChildrenElement, entry?.children ?? {}, specificChildrenElement, evenChild)
 				})
 			}
-		} else if (childDef.type === "string") {
-			inputElement = createStringInput(`${parentId}-${key}`, childDef)
-		} else if (childDef.type === "number") {
-			inputElement = createNumberInput(`${parentId}-${key}`, childDef)
-		} else if (childDef.type === "boolean") {
-			inputElement = createBooleanInput(`${parentId}-${key}`, childDef)
-		} else if (childDef.type == "compound") {
-			inputElement = createCompoundInput(`${parentId}-${key}`, key, childDef, !evenChild)
-		} else if (childDef.type == "list") {
-			inputElement = createListInput(`${parentId}-${key}`, key, childDef, !evenChild)
-		} else if (childDef.type == "tuple") {
-			inputElement = createTupleInput(`${parentId}-${key}`, key, childDef, !evenChild)
-		} else {
-			throw new Error(`Unsupported type: ${childDef.type}`)
 		}
 
-		inputElement.dataset.key = key
-		
-		if (["compound", "list", "tuple"].includes(childDef.type)) {
-			element.appendChild(inputElement)
-			continue
-		}
-
-		const label = createElement("label", {})
-		label.textContent = key
-		label.ariaLabel = key
-		if (childDef.required != undefined) label.dataset.labelsRequired = childDef.required+""
-		label.appendChild(inputElement)
-		element.appendChild(label)
+		element.appendChild(inputElement)
 	}
 }
 
@@ -234,39 +241,13 @@ function createListInput(id: string, name: string, def: NBTList, evenChild: bool
 }
 
 function createListItemInput(parentId: string, index: number, elementType: NBTList["elementType"], evenChild: boolean, labelText: string = index+"") {
-	let inputElement: HTMLInputElement | HTMLSelectElement | HTMLDivElement
+	const inputElement = createNestedChild(parentId, index+"", elementType, evenChild, labelText, !elementType.required)
 
-	if (elementType.type in specialTypeMapping) {
-		const key = elementType.type as keyof typeof specialTypeMapping
-		const required = "required" in elementType && elementType.required
-		elementType = specialTypeMapping[key]
-		elementType.required ??= required
-	}
-
-	if (elementType.type === "string") {
-		inputElement = createStringInput(`${parentId}-${index}`, elementType)
-	} else if (elementType.type === "number") {
-		inputElement = createNumberInput(`${parentId}-${index}`, elementType)
-	} else if (elementType.type === "boolean") {
-		inputElement = createBooleanInput(`${parentId}-${index}`, elementType)
-	} else if (elementType.type === "compound") {
-		inputElement = createCompoundInput(`${parentId}-${index}`, index+"", elementType, !evenChild, !elementType.required)
+	if (elementType.type === "compound") {
 		inputElement.classList.add("open") // open by default since it has just been created
-	} else {
-		throw new Error(`Unsupported list item type: ${elementType.type}`)
 	}
 
-	inputElement.dataset.key = index+""
-
-	if (["compound", "list", "tuple"].includes(elementType.type)) {
-		return inputElement
-	}
-
-	const label = createElement("label", {})
-	label.textContent = labelText+""
-	label.ariaLabel = labelText+""
-	label.appendChild(inputElement)
-	return label
+	return inputElement
 }
 
 function createTupleInput(id: string, name: string, def: NBTTuple, evenChild: boolean, removable: boolean = false) {
@@ -276,7 +257,7 @@ function createTupleInput(id: string, name: string, def: NBTTuple, evenChild: bo
 
 	for (let i = 0; i < def.labels.length; i++) {
 		const label = def.labels[i]
-		const inputElement = createListItemInput(id, i, def.elementType, evenChild, label)
+		const inputElement = createNestedChild(id, i+"", def.elementType, evenChild, label)
 
 		childrenContainer.appendChild(inputElement)
 	}

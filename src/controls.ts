@@ -71,7 +71,7 @@ export function createControls(form: HTMLFormElement, settings: Settings): HTMLD
 	highlightRequiredCheckbox.checked = settings.highlightRequired
 	highlightRequiredLabel.appendChild(highlightRequiredCheckbox)
 
-	$("html").dataset.highlightRequired = "false"
+	$("html").dataset.highlightRequired = settings.highlightRequired + ""
 	highlightRequiredCheckbox.addEventListener("change", () => {
 		$("html").dataset.highlightRequired = highlightRequiredCheckbox.checked ? "true" : "false"
 	})

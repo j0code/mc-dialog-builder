@@ -217,7 +217,7 @@ function renderTextComponents(element: HTMLElement, components: TextComponent | 
 		element.appendChild(span)
 	}
 
-	element.ariaLabel ??= stringifyTextComponents(resolvedComponents)
+	element.ariaLabel = stringifyTextComponents(resolvedComponents)
 }
 
 function handleTextClick(event: TextClickEvent) {
